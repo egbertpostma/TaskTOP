@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="ctt" nsURI="ctt" nsPrefix="">
+  <eClassifiers xsi:type="ecore:EClass" name="TaskModel">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="root" lowerBound="1" eType="#//Task"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="tasks" lowerBound="1" upperBound="-1"
+        eType="#//Task" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Task" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        iD="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operator" eType="#//TemporalOperator"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="subtasks" upperBound="-1"
+        eType="#//Task" eOpposite="#//Task/parent"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" eType="#//Task"
+        eOpposite="#//Task/subtasks"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="min" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="max" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="iterative" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="UserTask" eSuperTypes="#//Task"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ApplicationTask" eSuperTypes="#//Task"/>
+  <eClassifiers xsi:type="ecore:EClass" name="InteractionTask" eSuperTypes="#//Task"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractionTask" eSuperTypes="#//Task"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NullTask" eSuperTypes="#//Task"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TemporalOperator" abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ChoiceOperator" eSuperTypes="#//TemporalOperator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OrderIndependenceOperator" eSuperTypes="#//TemporalOperator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="InterleavingOperator" eSuperTypes="#//TemporalOperator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SynchronizationOperator" eSuperTypes="#//TemporalOperator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ParallelOperator" eSuperTypes="#//TemporalOperator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DisablingOperator" eSuperTypes="#//TemporalOperator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SequentialEnablingInfoOperator" eSuperTypes="#//TemporalOperator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SequentialEnablingOperator" eSuperTypes="#//TemporalOperator"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SuspendResumeOperator" eSuperTypes="#//TemporalOperator"/>
+</ecore:EPackage>

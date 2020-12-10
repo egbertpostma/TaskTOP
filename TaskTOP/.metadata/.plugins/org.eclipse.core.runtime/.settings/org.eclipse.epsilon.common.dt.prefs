@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+org.eclipse.epsilon.common.dt.commentColor=127,159,127
+org.eclipse.epsilon.common.dt.defaultColor=212,196,169
+org.eclipse.epsilon.common.dt.keywordColor=141,203,226
+org.eclipse.epsilon.common.dt.stringColor=204,147,147
