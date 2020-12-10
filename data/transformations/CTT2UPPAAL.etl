@@ -1,0 +1,240 @@
+import "UPPAAL_stdFunctions.etl";
+import "ctt2uppaal/TopLevel.etl";
+import "ctt2uppaal/LeafTask.etl";
+import "ctt2uppaal/NullTask.etl";
+import "ctt2uppaal/Choice.etl";
+import "ctt2uppaal/SequentialEnablingInfo.etl";
+import "ctt2uppaal/SequentialEnabling.etl";
+import "ctt2uppaal/Interleaving.etl";
+import "ctt2uppaal/Disabling.etl";
+import "ctt2uppaal/SuspendResume.etl";
+
+/*
+pre {
+    var javaDate = new Native("java.util.Date");
+    javaDate.toString().println("Starting CTT2UPPAAL transformation: ");
+}
+
+post {
+    var javaDate = new Native("java.util.Date");
+    javaDate.toString().println("Completed CTT2UPPAAL transformation: ");
+}
+*/
+
+pre {
+    var taskIndex = 0;
+    
+    var b_chan_start      : Uppaal!Variable;
+    var b_chan_done       : Uppaal!Variable;
+    var b_chan_suspend    : Uppaal!Variable;
+    var b_chan_resume     : Uppaal!Variable;
+    var b_chan_activate   : Uppaal!Variable;
+    var b_chan_deactivate : Uppaal!Variable;
+}
+
+@primary
+rule CTT2UPPAAL 
+    transform ctt : CTT!TaskModel
+    to uppaal : Uppaal!NTA {
+        uppaal.name = ctt.name;
+        
+        uppaal.int = new Uppaal!PredefinedType();
+        uppaal.int.name = "int";
+        uppaal.int.type = Uppaal!BuiltInType#INT;
+        uppaal.chan  = new Uppaal!PredefinedType();
+        uppaal.chan.name = "chan";
+        uppaal.chan.type = Uppaal!BuiltInType#CHAN;
+        uppaal.bool  = new Uppaal!PredefinedType();
+        uppaal.bool.name = "bool";
+        uppaal.bool.type = Uppaal!BuiltInType#BOOL;
+        uppaal.void  = new Uppaal!PredefinedType();
+        uppaal.void.name = "void";
+        uppaal.void.type = Uppaal!BuiltInType#VOID;
+        uppaal.clock  = new Uppaal!PredefinedType();
+        uppaal.clock.name = "clock";
+        uppaal.clock.type = Uppaal!BuiltInType#CLOCK;
+        
+        uppaal.globalDeclarations = new Uppaal!GlobalDeclarations();
+        
+        uppaal.systemDeclarations = new Uppaal!SystemDeclarations();
+        uppaal.systemDeclarations.system = new Uppaal!System();
+        var iList = new Uppaal!InstantiationList();
+        uppaal.systemDeclarations.system.instantiationList.add(iList);
+        
+        // Create default templates
+        uppaal.template.add(createTopLevelTemplate());
+        uppaal.template.add(createLeafTaskTemplate());
+        uppaal.template.add(createNullTaskTemplate());
+        uppaal.template.add(createChoiceTaskTemplate());
+        uppaal.template.add(createSequentialEnablingTaskTemplate());
+        uppaal.template.add(createSequentialEnablingInfoTaskTemplate());
+        uppaal.template.add(createInterleavingTaskTemplate());
+        uppaal.template.add(createDisablingTaskTemplate());
+        uppaal.template.add(createSuspendResumeTaskTemplate());
+        
+        var taskIndex = 0;
+        
+        for(task : CTT!Task in ctt.Tasks) {
+            var convertedTask : List = task.equivalent();
+            var decl = convertedTask.get(0);
+	        uppaal.systemDeclarations.declaration.add(decl);
+            iList.template.add(decl.declaredTemplate);
+        }
+        
+        var decl = ctt.Root.createRootTemplateDeclaration();
+        uppaal.systemDeclarations.declaration.add(decl);
+        iList.template.add(decl.declaredTemplate);
+        
+
+        var nrOfTasks = ctt.Tasks.size();
+
+		b_chan_start      = createVariable("start").makeArray(nrOfTasks);
+		b_chan_done       = createVariable("done").makeArray(nrOfTasks);
+		b_chan_suspend    = createVariable("suspend").makeArray(nrOfTasks);
+		b_chan_resume     = createVariable("resume").makeArray(nrOfTasks);
+		b_chan_activate   = createVariable("activate").makeArray(nrOfTasks);
+		b_chan_deactivate = createVariable("deactivate").makeArray(nrOfTasks);
+
+        var startSignalDeclaration      = createChannelDeclaration(b_chan_start).makeBroadcast();
+        var doneSignalDeclaration       = createChannelDeclaration(b_chan_done);
+        var suspendSignalDeclaration    = createChannelDeclaration(b_chan_suspend);
+        var resumeSignalDeclaration     = createChannelDeclaration(b_chan_resume);
+        var activateSignalDeclaration   = createChannelDeclaration(b_chan_activate);
+        var deactivateSignalDeclaration = createChannelDeclaration(b_chan_deactivate);
+        
+        uppaal.globalDeclarations.declaration.add(startSignalDeclaration     );
+        uppaal.globalDeclarations.declaration.add(doneSignalDeclaration      );
+        uppaal.globalDeclarations.declaration.add(suspendSignalDeclaration   );
+        uppaal.globalDeclarations.declaration.add(resumeSignalDeclaration    );
+        uppaal.globalDeclarations.declaration.add(activateSignalDeclaration  );
+        uppaal.globalDeclarations.declaration.add(deactivateSignalDeclaration);
+        
+        
+    }
+     
+    
+@lazy
+rule abstractionTask2Template
+transform task : CTT!AbstractionTask
+to ret : List {
+    task.createTemplateDeclaration(ret);
+}
+
+@lazy
+rule interactionTask2Template
+transform task : CTT!InteractionTask
+to ret : List {
+    task.createTemplateDeclaration(ret);
+}
+
+@lazy
+rule applicationTask2Template
+transform task : CTT!ApplicationTask
+to ret : List {
+    task.createTemplateDeclaration(ret);
+}
+
+@lazy
+rule userTask2Template
+transform task : CTT!UserTask
+to ret : List {
+    task.createTemplateDeclaration(ret);
+}
+
+@lazy
+rule nullTask2Template
+transform task : CTT!NullTask
+to ret : List {
+    var index = taskIndex;
+    taskIndex++;
+    
+    var decl = new Uppaal!TemplateDeclaration();
+    decl.declaredTemplate = new Uppaal!RedefinedTemplate();
+    decl.declaredTemplate.name = "t_" + task.id.asString();
+    decl.declaredTemplate.referredTemplate = Uppaal!Template.allInstances().select(t | t.name == "NullTask").first();
+    
+    decl.argument.add(createLiteralExpression(index));
+    
+    ret.add(decl);
+    ret.add(index);
+}
+
+operation CTT!Task createRootTemplateDeclaration() : Uppaal!TemplateDeclaration {
+    var decl = new Uppaal!TemplateDeclaration();
+    decl.declaredTemplate = new Uppaal!RedefinedTemplate();
+    decl.declaredTemplate.name = "top_level";
+    decl.declaredTemplate.referredTemplate = Uppaal!Template.allInstances().select(t | t.name == "TopLevel").first();
+    
+    decl.argument.add(createLiteralExpression(self.equivalent().get(1)));
+    
+    return decl;
+}
+
+operation CTT!Task createTemplateDeclaration(ret : List) {
+    var index = taskIndex;
+    taskIndex++;
+    
+    var decl = new Uppaal!TemplateDeclaration();
+    decl.declaredTemplate = new Uppaal!RedefinedTemplate();
+    decl.declaredTemplate.name = "t_" + self.id.asString();
+    decl.declaredTemplate.referredTemplate = getTemplateByOperatorType(self.operator);
+    
+    decl.argument.add(createLiteralExpression(index));
+    decl.argument.add(createLiteralExpression(self.iterative));
+    
+    if(self.operator != null) {
+        decl.argument.add(createLiteralExpression(self.subtasks.get(0).equivalent().get(1)));
+        decl.argument.add(createLiteralExpression(self.subtasks.get(1).equivalent().get(1)));
+    } else {
+        decl.argument.add(createLiteralExpression(self.min));
+        decl.argument.add(createLiteralExpression(self.max));
+    }
+    
+    ret.add(decl);
+    ret.add(index);
+}
+
+operation getTemplateByOperatorType(operator : CTT!TemporalOperator) : Uppaal!Template {
+    var templateName = "LeafTask";
+    
+    if(operator != null) {
+        templateName = operator.type().name.replace("Operator", "");
+    }
+        
+    return Uppaal!Template.allInstances().select(t | t.name == templateName).first();
+}
+/*
+operation CTT!Task createTemplateDeclaration(index: Integer) : Uppaal!TemplateDeclaration {
+    var decl = new Uppaal!TemplateDeclaration();
+    
+    decl.declaredTemplate = new Uppaal!RedefinedTemplate();
+    decl.declaredTemplate.name = "task_" + self.id.asString();
+    
+    decl.argument.add(createLiteralExpression(index.toString()));
+    if(self.operator != null) {
+        decl.argument.add(createLiteralExpression(self.optional));
+    }
+    decl.argument.add(createLiteralExpression(self.iterative));
+    decl.argument.add(createLiteralExpression(self.optional));
+    
+    var templateToUse = tmpl_LeafTask;
+    
+    
+
+    
+    decl.declaredTemplate.referredTemplate = templateToUse;
+
+    
+    return decl;
+}*/
+
+
+
+operation Uppaal!Variable getArrayExpression(idx) : Uppaal!IdentifierExpression {
+    return self.createReferringExpression().makeArrayExpression(idx);
+}
+
+
+
+
+

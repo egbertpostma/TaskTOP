@@ -1,0 +1,52 @@
+/*
+pre {
+    var javaDate = new Native("java.util.Date");
+    javaDate.toString().println("Starting CTTXML validation: ");
+}
+
+post {
+    var javaDate = new Native("java.util.Date");
+    javaDate.toString().println("Completed CTTXML validation: ");
+}
+*/
+
+context CTTXML!t_TaskModel {
+
+    constraint TaskModelDefined {
+	    check: self.c_Task.size() = 1
+	    message: "Multiple Tasks in root."
+	}
+	
+}
+
+context CTTXML!t_Task {
+
+    constraint IdentifiersShouldNotHaveSpaces {
+        check { 
+            var success = (" ".isSubstringOf(self.a_Identifier) == false);
+                if(success == false) {
+                    var old = self.a_Identifier;
+                    self.a_Identifier = self.a_Identifier.replace(" ", "_");
+                    "".println("Changed '" + (old + "'").pad(30, " ", true) + " to '" + self.a_Identifier + "'");
+                }
+                return true;
+        }
+    }
+    
+    
+    constraint IdentifiersShouldBeAlfa {
+        check: self.a_Identifier.matches("[a-zA-Z0-9_ ]*") == true
+        message: self.a_Identifier + " contains non-alfa characters..."
+    }
+    
+    constraint SubtasksHaveSameOperator {
+        guard: self.e_SubTask != null
+        check {
+            var operator = self.e_SubTask.c_Task.first().e_TemporalOperator.a_name;
+            return self.e_SubTask.c_Task.atLeastNMatch(a | (a.e_TemporalOperator != null and a.e_TemporalOperator.a_name = operator), self.e_SubTask.c_Task.size()-1);
+        }
+        message: "The subtasks of Task " + self.a_Identifier + " should share the same temporal operator.\n"
+
+    }
+    
+}

@@ -1,0 +1,134 @@
+import "../UPPAAL_stdFunctions.etl";
+
+/*
+pre {
+    var javaDate = new Native("java.util.Date");
+    javaDate.toString().println("Starting CTT2UPPAAL transformation: ");
+}
+
+post {
+    var javaDate = new Native("java.util.Date");
+    javaDate.toString().println("Completed CTT2UPPAAL transformation: ");
+}
+*/
+
+operation createLeafTaskTemplate() : Uppaal!Template {
+    //// Create template
+    var template = new Uppaal!Template();
+    template.name = "LeafTask";
+    
+    //// Add declarations
+    
+    // Add elapsedTime clock
+    var cl_elapsedTime = template.declareClock("elapsedTime");
+    
+    //// Add parameters
+    
+    // Create id paramater
+    var var_id = createVariable("id");
+    template.addParameter(createDataDeclaration(var_id), false);    
+    
+    // Create iterative paramater
+    var var_iterative = createVariable("iterative");
+    template.addParameter(createDataDeclaration(var_iterative).setTypeName("bool"), false);
+   
+    
+    // Create min_time paramater
+    var var_min_time = createVariable("min_time");
+    template.addParameter(createDataDeclaration(var_min_time).setTypeName("int"), false);
+    
+    // Create max_time paramater
+    var var_max_time = createVariable("max_time");
+    template.addParameter(createDataDeclaration(var_max_time).setTypeName("int"), false);
+    
+    
+    //// Add locations
+    
+    // Add initial location
+    var loc_disabled              = template.createLocation("Init", 0, 0);
+    var loc_waiting               = template.createLocation("Waiting", 1, 0);
+    var loc_suspendedWhileWaiting = template.createLocation("SuspendedWhileWaiting", 2, 0);
+    var loc_running               = template.createLocation("Running", 1, 1);
+    var loc_suspendedWhileRunning = template.createLocation("SuspendedWhileRunning", 2, 1);
+    var loc_done_s1               = template.createLocation("_1", 1, 2).makeCommitted();
+    var loc_done                  = template.createLocation("Done", 0, 2);
+    
+    // FIX: Fix to clock rate
+    loc_suspendedWhileRunning.setInvariant(cl_elapsedTime.simpleComparison(0, Uppaal!CompareOperator#EQUAL));
+    
+    loc_running.setInvariant(createDisjunction(var_max_time.simpleComparison(-1, Uppaal!CompareOperator#EQUAL), cl_elapsedTime.simpleComparison(var_max_time, Uppaal!CompareOperator#LESS_OR_EQUAL)));
+    
+    template.init = loc_disabled;
+    
+    
+    //// Add edges    
+    
+    var var_activate = createVariable("activate");
+    var var_deactivate = createVariable("deactivate");
+    var var_suspend = createVariable("suspend");
+    var var_resume = createVariable("resume");
+    var var_start = createVariable("start");
+    var var_done = createVariable("done");
+    
+    
+    
+    
+    template.createEdge(loc_disabled, loc_waiting)
+                                    .setSync(var_activate.getArrayExpression(var_id), false);
+    
+
+                                    
+    template.createEdge(loc_waiting, loc_suspendedWhileWaiting)
+                                    .setSync(var_suspend.getArrayExpression(var_id), false);
+                                    
+    template.createEdge(loc_suspendedWhileWaiting, loc_waiting)
+                                    .setSync(var_resume.getArrayExpression(var_id), false);
+    
+    template.createEdge(loc_waiting, loc_running)
+                                    .setSync(var_start.getArrayExpression(var_id), true)
+                                    .addUpdate(cl_elapsedTime.simpleAssignment(0));
+                                    
+    template.createEdge(loc_running, loc_suspendedWhileRunning)
+                                    .setSync(var_suspend.getArrayExpression(var_id), false);
+                                    
+    template.createEdge(loc_suspendedWhileRunning, loc_running)
+                                    .setSync(var_resume.getArrayExpression(var_id), false);
+                                    
+                                        
+    template.createEdge(loc_running, loc_done_s1)
+                                    .addUpdate(cl_elapsedTime.simpleAssignment(0))
+                                    .setGuard(createDisjunction(var_min_time.simpleComparison(-1, Uppaal!CompareOperator#EQUAL), cl_elapsedTime.simpleComparison(var_min_time, Uppaal!CompareOperator#GREATER_OR_EQUAL)));
+    
+    template.createEdge(loc_done_s1, loc_done)
+                                    .setSync(var_done.getArrayExpression(var_id), true)
+                                    .setGuard(var_iterative.asBoolean(false));
+                                    
+    template.createEdge(loc_done_s1, loc_waiting)
+                                    .setGuard(var_iterative.asBoolean(true));
+                                    
+    // Deactivation edges                        
+    template.createEdge(loc_disabled, loc_disabled)
+                                    .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+   
+    template.createEdge(loc_waiting, loc_disabled)
+                                    .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+                                    
+    template.createEdge(loc_suspendedWhileWaiting, loc_disabled)
+                                    .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+                                    
+    template.createEdge(loc_running, loc_disabled)
+                                    .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+                                    
+    template.createEdge(loc_suspendedWhileRunning, loc_disabled)
+                                    .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    
+    template.createEdge(loc_done, loc_disabled)
+                                    .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    
+    
+    
+    return template;
+}
+
+
+

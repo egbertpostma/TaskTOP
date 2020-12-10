@@ -1,0 +1,271 @@
+operation createInterleavingTaskTemplate() : Uppaal!Template {
+    //// Create template
+    var template = new Uppaal!Template();
+    template.name = "Interleaving";
+    
+    //// Add declarations
+    
+    // Add elapsedTime clock
+    var cl_elapsedTime = template.declareClock("elapsedTime");
+        
+    // Add disabled variable
+    var var_suspended = template.declareBool("suspended", false);
+    
+    // Add iterating variable
+    var var_iterating = template.declareBool("iterating", false);
+    
+    //// Add parameters
+    
+    // Create id paramater
+    var var_id = createVariable("id");
+    template.addParameter(createDataDeclaration(var_id), false);
+    
+    // Create iterative paramater
+    var var_iterative = createVariable("iterative");
+    template.addParameter(createDataDeclaration(var_iterative).setTypeName("bool"), false);
+    
+    // Create left paramater
+    var var_left = createVariable("left");
+    template.addParameter(createDataDeclaration(var_left), false);
+    
+    // Create right paramater
+    var var_right = createVariable("right");
+    template.addParameter(createDataDeclaration(var_right), false);
+    
+    
+    //// Add locations
+    
+    var loc_disabled                              = template.createLocation("Disabled", 0, 0);
+    
+    var loc_waitingForStart_1                     = template.createLocation("",1 ,0 ).makeCommitted();
+    var loc_waitingForStart_2                     = template.createLocation("",2 ,0 ).makeCommitted();
+    var loc_waitingForStart                       = template.createLocation("",3 ,0 );
+
+    var loc_suspendedWhileWaitingForStart_1       = template.createLocation("",3 ,-1 ).makeCommitted();
+    var loc_suspendedWhileWaitingForStart_2       = template.createLocation("",3 ,-2 ).makeCommitted();
+    var loc_suspendedWhileWaitingForStart         = template.createLocation("",3 ,-3 );
+
+    var loc_waitingForDone_1                      = template.createLocation("",4 ,0 ).makeCommitted();
+    var loc_waitingForDone                        = template.createLocation("",5 ,0 );
+
+    var loc_suspendedWhileWaitingForDone_1        = template.createLocation("",5 ,-1 ).makeCommitted();
+    var loc_suspendedWhileWaitingForDone_2        = template.createLocation("",5 ,-2 ).makeCommitted();
+    var loc_suspendedWhileWaitingForDone          = template.createLocation("",5 ,-3 );
+
+    var loc_waitingForRightDone                   = template.createLocation("",7 ,-1 );
+
+    var loc_suspendedWhileWaitingForRightDone_1   = template.createLocation("",7 ,-2 ).makeCommitted();
+    var loc_suspendedWhileWaitingForRightDone     = template.createLocation("",7 ,-3 );
+
+    var loc_waitingForLeftDone                    = template.createLocation("",7 ,1 );
+
+    var loc_suspendedWhileWaitingForLeftDone_1    = template.createLocation("",7 ,2 ).makeCommitted();
+    var loc_suspendedWhileWaitingForLeftDone      = template.createLocation("",7 ,3 );
+
+    var loc_done_1                                = template.createLocation("",9 ,0 ).makeCommitted();
+    var loc_done_2                                = template.createLocation("",2 ,1 ).makeCommitted();
+    var loc_done                                  = template.createLocation("Done",2 ,2 );
+
+    var loc_deactivate_1                        = template.createLocation("", 1, 2).makeCommitted();
+    var loc_deactivate_2                        = template.createLocation("", 0.5, 2).makeCommitted();
+    var loc_deactivate_3                        = template.createLocation("", 0, 2).makeCommitted();
+    
+    template.init = loc_disabled;
+    
+    
+    // Add edges
+    
+    var var_activate = createVariable("activate");
+    var var_deactivate = createVariable("deactivate");
+    var var_suspend = createVariable("suspend");
+    var var_resume = createVariable("resume");
+    var var_start = createVariable("start");
+    var var_done = createVariable("done");
+    
+    
+    template.createEdge(loc_disabled, loc_waitingForStart_1)
+        .setSync(var_activate.getArrayExpression(var_id), false);
+        
+    template.createEdge(loc_waitingForStart_1, loc_waitingForStart_2)
+        .setSync(var_activate.getArrayExpression(var_left), true);
+        
+    template.createEdge(loc_waitingForStart_2, loc_waitingForStart)
+        .setSync(var_activate.getArrayExpression(var_right), true);
+        
+    template.createEdge(loc_waitingForStart, loc_waitingForDone_1)
+        .setSync(var_start.getArrayExpression(var_left), false);
+        
+    template.createEdge(loc_waitingForStart, loc_waitingForDone_1)
+        .setSync(var_start.getArrayExpression(var_right), false);
+        
+    template.createEdge(loc_waitingForDone_1, loc_waitingForDone)
+        .setSync(var_start.getArrayExpression(var_id), true);
+        
+    template.createEdge(loc_waitingForDone, loc_waitingForRightDone)
+        .setSync(var_done.getArrayExpression(var_left), false);
+        
+    template.createEdge(loc_waitingForDone, loc_waitingForLeftDone)
+        .setSync(var_done.getArrayExpression(var_right), false);
+        
+    template.createEdge(loc_waitingForRightDone, loc_done_1)
+        .setSync(var_done.getArrayExpression(var_right), false);
+        
+    template.createEdge(loc_waitingForLeftDone, loc_done_1)
+        .setSync(var_done.getArrayExpression(var_left), false);
+        
+    template.createEdge(loc_done_1, loc_done_2);
+    
+    template.createEdge(loc_done_2, loc_done)
+        .setSync(var_done.getArrayExpression(var_id), true)
+        .setGuard(var_iterative.asBoolean(false));
+        
+    template.createEdge(loc_done_2, loc_deactivate_1)
+        .setGuard(var_iterative.asBoolean(true))
+        .addUpdate(var_iterating.simpleAssignment(true));
+        
+    template.createEdge(loc_deactivate_1, loc_deactivate_2)
+        .setSync(var_deactivate.getArrayExpression(var_left), true);
+        
+    template.createEdge(loc_deactivate_2, loc_deactivate_3)
+        .setSync(var_deactivate.getArrayExpression(var_right), true);
+        
+    template.createEdge(loc_deactivate_3, loc_disabled)
+        .setGuard(var_iterating.asBoolean(false));
+        
+    template.createEdge(loc_deactivate_3, loc_waitingForStart_1)
+        .setGuard(var_iterating.asBoolean(true))
+        .addUpdate(var_iterating.simpleAssignment(false));
+        
+    // Create deactivation edges
+    
+    template.createEdge(loc_disabled,                          loc_disabled).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_waitingForStart,                   loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_suspendedWhileWaitingForStart,     loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_waitingForDone,                    loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_suspendedWhileWaitingForDone,      loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_waitingForRightDone,               loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_suspendedWhileWaitingForRightDone, loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_waitingForLeftDone,                loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_suspendedWhileWaitingForLeftDone,  loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    template.createEdge(loc_done,                              loc_deactivate_1).setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
+    
+    // Create suspend edges
+    
+    template.createEdge(loc_waitingForStart, loc_suspendedWhileWaitingForStart_1)
+        .setSync(var_suspend.getArrayExpression(var_id), false);
+    
+    template.createEdge(loc_suspendedWhileWaitingForStart_1, loc_suspendedWhileWaitingForStart_2)
+        .setSync(var_suspend.getArrayExpression(var_left), true)
+        .setGuard(var_suspended.asBoolean(false));
+    
+    template.createEdge(loc_suspendedWhileWaitingForStart_2, loc_suspendedWhileWaitingForStart)
+        .setSync(var_suspend.getArrayExpression(var_right), true)
+        .setGuard(var_suspended.asBoolean(false))
+        .addUpdate(var_suspended.simpleAssignment(true));
+    
+    template.createEdge(loc_suspendedWhileWaitingForStart, loc_suspendedWhileWaitingForStart_2)
+        .setSync(var_resume.getArrayExpression(var_id), false);
+
+    template.createEdge(loc_suspendedWhileWaitingForStart_2, loc_suspendedWhileWaitingForStart_1)
+        .setSync(var_resume.getArrayExpression(var_left), true)
+        .setGuard(var_suspended.asBoolean(true));
+
+    template.createEdge(loc_suspendedWhileWaitingForStart_1, loc_waitingForStart)
+        .setSync(var_resume.getArrayExpression(var_right), true)
+        .setGuard(var_suspended.asBoolean(true))
+        .addUpdate(var_suspended.simpleAssignment(false));
+        
+        
+            
+    template.createEdge(loc_waitingForDone, loc_suspendedWhileWaitingForDone_1)
+        .setSync(var_suspend.getArrayExpression(var_id), false);
+    
+    template.createEdge(loc_suspendedWhileWaitingForDone_1, loc_suspendedWhileWaitingForDone_2)
+        .setSync(var_suspend.getArrayExpression(var_left), true)
+        .setGuard(var_suspended.asBoolean(false));
+    
+    template.createEdge(loc_suspendedWhileWaitingForDone_2, loc_suspendedWhileWaitingForDone)
+        .setSync(var_suspend.getArrayExpression(var_right), true)
+        .setGuard(var_suspended.asBoolean(false))
+        .addUpdate(var_suspended.simpleAssignment(true));
+    
+    template.createEdge(loc_suspendedWhileWaitingForDone, loc_suspendedWhileWaitingForDone_2)
+        .setSync(var_resume.getArrayExpression(var_id), false);
+
+    template.createEdge(loc_suspendedWhileWaitingForDone_2, loc_suspendedWhileWaitingForDone_1)
+        .setSync(var_resume.getArrayExpression(var_left), true)
+        .setGuard(var_suspended.asBoolean(true));
+
+    template.createEdge(loc_suspendedWhileWaitingForDone_1, loc_waitingForDone)
+        .setSync(var_resume.getArrayExpression(var_right), true)
+        .setGuard(var_suspended.asBoolean(true))
+        .addUpdate(var_suspended.simpleAssignment(false));
+        
+    
+    
+    template.createEdge(loc_waitingForRightDone, loc_suspendedWhileWaitingForRightDone_1)
+        .setSync(var_suspend.getArrayExpression(var_id), false);
+    
+    template.createEdge(loc_suspendedWhileWaitingForRightDone_1, loc_suspendedWhileWaitingForRightDone)
+        .setSync(var_suspend.getArrayExpression(var_right), true)
+        .setGuard(var_suspended.asBoolean(false))
+        .addUpdate(var_suspended.simpleAssignment(true));
+    
+    template.createEdge(loc_suspendedWhileWaitingForRightDone, loc_suspendedWhileWaitingForRightDone_1)
+        .setSync(var_resume.getArrayExpression(var_id), false);
+
+    template.createEdge(loc_suspendedWhileWaitingForRightDone_1, loc_waitingForRightDone)
+        .setSync(var_resume.getArrayExpression(var_right), true)
+        .setGuard(var_suspended.asBoolean(true))
+        .addUpdate(var_suspended.simpleAssignment(false));
+        
+        
+        
+            
+    template.createEdge(loc_waitingForLeftDone, loc_suspendedWhileWaitingForLeftDone_1)
+        .setSync(var_suspend.getArrayExpression(var_id), false);
+    
+    template.createEdge(loc_suspendedWhileWaitingForLeftDone_1, loc_suspendedWhileWaitingForLeftDone)
+        .setSync(var_suspend.getArrayExpression(var_left), true)
+        .setGuard(var_suspended.asBoolean(false))
+        .addUpdate(var_suspended.simpleAssignment(true));
+    
+    template.createEdge(loc_suspendedWhileWaitingForLeftDone, loc_suspendedWhileWaitingForLeftDone_1)
+        .setSync(var_resume.getArrayExpression(var_id), false);
+
+    template.createEdge(loc_suspendedWhileWaitingForLeftDone_1, loc_waitingForLeftDone)
+        .setSync(var_resume.getArrayExpression(var_left), true)
+        .setGuard(var_suspended.asBoolean(true))
+        .addUpdate(var_suspended.simpleAssignment(false));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    return template;
+}

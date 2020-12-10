@@ -1,0 +1,56 @@
+/*
+pre {
+    var javaDate = new Native("java.util.Date");
+    javaDate.toString().println("Starting CTTXML2CTT validation: ");
+}
+
+post {
+    var javaDate = new Native("java.util.Date");
+    javaDate.toString().println("Completed CTTXML2CTT validation: ");
+}
+*/
+
+context CTTXML!t_Task {
+
+    constraint TaskExists {
+        check: CTT!Task.all.select(t|self.equals(t)).size() == 1
+        message: "No task found for t_task " + self.e_name.text + " (" + self.a_Identifier + ")"
+    }
+    
+    constraint LeafTaskHasNoOperator {
+        guard: self.e_SubTask == null
+        check: CTT!Task.all.select(t|self.equals(t)).first().operator == null
+        message: self.a_Identifier + " is a leaf task, but got assigned an operator after conversion.."
+    }
+    
+    constraint NonLeafTasksShouldHaveOperatorOfFirstSubtask {
+        guard: self.e_SubTask != null and self.e_SubTask.c_Task.size() > 0
+        check: CTT!Task.all.select(t|self.equals(t)).first().operator.type() == self.e_SubTask.c_Task.first().getTemporalOperator().type()
+        message: self.a_Identifier + " is a non-leaf task and should have received the temporal operator of the first subtask."
+    }
+    
+}
+
+operation CTTXML!t_Task equals(t : CTT!Task) : Boolean {
+    return (t.id = self.a_Identifier);
+}
+
+
+
+operation CTTXML!t_Task getTemporalOperator() : CTT!TemporalOperator {
+    var temporalOperator = self.e_TemporalOperator;
+    var temporalOperatorName = temporalOperator<>null ? temporalOperator.a_name : "";
+    
+    switch(temporalOperatorName) {
+        case "Choice":                  return new CTT!ChoiceOperator();
+        case "OrderIndependence":       return new CTT!OrderIndependenceOperator();
+        case "Interleaving":            return new CTT!InterleavingOperator();
+        case "Synchronization":         return new CTT!SynchronizationOperator();
+        case "Parallel  ":              return new CTT!ParallelOperator();
+        case "Disabling":               return new CTT!DisablingOperator();
+        case "SequentialEnablingInfo":  return new CTT!SequentialEnablingInfoOperator();
+        case "SequentialEnabling":      return new CTT!SequentialEnablingOperator();
+        case "SuspendResume":           return new CTT!SuspendResumeOperator();
+        case "" :                       return null;
+    }
+}
