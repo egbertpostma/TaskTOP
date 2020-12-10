@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: CTTConverter
-Bundle-SymbolicName: CTTConverter
+Bundle-Name: TaskTOP
+Bundle-SymbolicName: TaskTOP
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: cttconverter.Activator
 Require-Bundle: org.eclipse.ui,
@@ -15,11 +15,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.xtext.xbase.lib;bundle-version="2.21.0",
  org.eclipse.emf.mapping;bundle-version="2.12.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-14
-Automatic-Module-Name: CTTConverter
+Automatic-Module-Name: TaskTOP
 Bundle-ActivationPolicy: lazy
 Import-Package: ctt,
  ctt.impl,
  org.muml.uppaal,
  org.muml.uppaal.impl,
- org.muml.uppaal.serialization,
- uppaal
+ org.muml.uppaal.serialization

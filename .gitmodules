@@ -1,3 +1,6 @@
 [submodule "CTT"]
 	path = CTT
 	url = https://github.com/egbertpostma/CTT.git
+[submodule "uppaal"]
+	path = uppaal
+	url = https://github.com/egbertpostma/uppaal.git
