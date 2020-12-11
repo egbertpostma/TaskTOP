@@ -57,8 +57,6 @@ public abstract class BaseTransformer {
 		module.execute();
 
 		o.validate();
-		Output _o = (Output)o;
-		if(_o != null) _o.store();
 
 		return (validatorURI != null) ? validate(i, o) : true;
 

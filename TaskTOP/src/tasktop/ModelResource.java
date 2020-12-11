@@ -32,11 +32,24 @@ public abstract class ModelResource {
 	private boolean isValid = false;
 	private EvlModule validator;
 	
+	public ModelResource(Language lang, Role role) {
+		this.language = lang;
+		this.role = role;
+	}
 	
 	public ModelResource(String loc, Language lang, Role role) {
 		this.location = loc;
 		this.language = lang;
 		this.role = role;
+		
+		initialize();
+	}
+	
+	private void initialize() {
+		if(location.isBlank()) {
+			System.err.println("Set location first!");
+			return;
+		}
 		
 		try {
 			createModel();
@@ -50,6 +63,12 @@ public abstract class ModelResource {
 	
 	public String location() {
 		return location;
+	}
+	
+	protected void setLocation(String location) {
+		this.location = location;
+		
+		initialize();
 	}
 
 	public Language language() {
@@ -226,9 +245,11 @@ public abstract class ModelResource {
 		} else {
 			props.put(EmfModel.PROPERTY_FILE_BASED_METAMODEL_URI, toFileURI(language.getLocation()));
 		}
-		props.put(EmfModel.PROPERTY_MODEL_URI, model);
-		props.put(EmfModel.PROPERTY_READONLOAD, "" + (role == Role.SOURCE || role == Role.BOTH));
-		props.put(EmfModel.PROPERTY_STOREONDISPOSAL, "" + (role == Role.TARGET || role == Role.BOTH));
+		if(!model.isBlank()) {
+			props.put(EmfModel.PROPERTY_MODEL_URI, model);
+			props.put(EmfModel.PROPERTY_READONLOAD, "" + (role == Role.SOURCE || role == Role.BOTH));
+			props.put(EmfModel.PROPERTY_STOREONDISPOSAL, "" + (role == Role.TARGET || role == Role.BOTH));
+		}
 
 		EmfModel result = new EmfModel();
 		result.load(props, (String)null);
