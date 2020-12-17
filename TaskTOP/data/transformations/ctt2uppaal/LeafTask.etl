@@ -54,7 +54,7 @@ operation createLeafTaskTemplate() : Uppaal!Template {
     var loc_done                  = template.createLocation("Done", 0, 2);
     
     // FIX: Fix to clock rate
-    loc_suspendedWhileRunning.setInvariant(cl_elapsedTime.simpleComparison(0, Uppaal!CompareOperator#EQUAL));
+    loc_suspendedWhileRunning.setInvariant(cl_elapsedTime.setClockRate(0));
     
     loc_running.setInvariant(createDisjunction(var_max_time.simpleComparison(-1, Uppaal!CompareOperator#EQUAL), cl_elapsedTime.simpleComparison(var_max_time, Uppaal!CompareOperator#LESS_OR_EQUAL)));
     

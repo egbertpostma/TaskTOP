@@ -1,35 +1,20 @@
 package tasktop;
 
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-
 import transformer.CTT2UPPAAL;
 import transformer.CTTXML2CTT;
 import transformer.UPPAAL2XML;
 
-public class TransformationEngine extends Thread {
-	
-	public interface ThreadCompleteListener {
-	    void notifyOfThreadComplete(final Thread thread);
-	}
-	
-	private final Set<ThreadCompleteListener> listeners
-	    = new CopyOnWriteArraySet<ThreadCompleteListener>();
-	public final void addListener(final ThreadCompleteListener listener) {
-		listeners.add(listener);
-	}
-	public final void removeListener(final ThreadCompleteListener listener) {
-		listeners.remove(listener);
-	}
-	private final void notifyListeners() {
-		for (ThreadCompleteListener listener : listeners) {
-			listener.notifyOfThreadComplete(this);
-		}
-	}
+public class TransformationEngine {
 	
 	private String inputFile = "";
 	private String outputFile = "";
 	private boolean isSuccess = false;
+	private boolean isInitialized = false;
+	
+	ModelResource cttxml	= null;
+	ModelResource ctt 		= null;
+	ModelResource uppaal	= null;
+	ModelResource uppaalxml = null;
 	
 	public TransformationEngine() {
 		
@@ -51,20 +36,20 @@ public class TransformationEngine extends Thread {
 		this.outputFile = outputFile;
 	}
 	
+	public ModelResource getCTTModel() {
+		return ctt;
+	}
+	
 	public boolean isSuccess() { return isSuccess; }
 	
 	public boolean execute() {
-		if(outputFile.isBlank())
-			outputFile = inputFile.replace(".xml", "_uppaal.xml");
-				
+		if(!initialize()) {
+			return false;
+		}
+			
+		
 		System.out.println("Input: " + inputFile);
 		System.out.println("Output: " + outputFile);
-		
-		// Create resources
-		ModelResource cttxml	= new Input(inputFile, Language.CTT_XML);
-		ModelResource ctt 		= new Temporary(Language.CTT);
-		ModelResource uppaal	= new Temporary(Language.UPPAAL);
-		ModelResource uppaalxml = new Output(outputFile, Language.UPPAAL_XML);
 
 		// Start conversion
 		
@@ -90,19 +75,39 @@ public class TransformationEngine extends Thread {
 	
 		isSuccess = success;
 		
-		return success;
-		
+		return success;	
 	}
-
-	@Override
-	public void run() {
+	
+	private boolean initialize() {
+		isInitialized = false;
 		
-		try {
-			execute();
-		} finally {
-			notifyListeners();
+		if(inputFile.isBlank()) {
+			System.err.println("Cannot initialize transformation engine: Inputfile is not set.");
+			return false;
 		}
 		
+		if(outputFile.isBlank()) {
+			outputFile = inputFile.replace(".xml", "_uppaal.xml");	
+			System.out.println("Using generated output filename: " + outputFile);
+		}
+		
+		cttxml		= new Input(inputFile, Language.CTT_XML);
+		ctt 		= new Temporary(Language.CTT);
+		uppaal		= new Temporary(Language.UPPAAL);
+		uppaalxml 	= new Output(outputFile, Language.UPPAAL_XML);
+		
+		if(!cttxml.isValid()) {
+			cttxml 		= null;
+			ctt	   		= null;
+			uppaal 		= null;
+			uppaalxml 	= null;
+			
+			System.err.println("Cannot initialize transformation engine: Inputfile is not valid.");
+			return false;
+		}
+		
+		isInitialized = true;
+		return true;
 	}
 	
 }

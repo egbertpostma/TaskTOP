@@ -28,6 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import tasktop.query.NotDeadlockQuery;
+
 
 public class MainWindow extends JFrame {
 	/**
@@ -88,7 +90,7 @@ public class MainWindow extends JFrame {
 		Panel transformPanel = new Panel(new FlowLayout(FlowLayout.CENTER));
 		
 		JButton btnTransform = new JButton("Transform");
-		JCheckBox chkOpenInUppaal = new JCheckBox("Open in UPPAAL", true);		
+		JCheckBox chkOpenInUppaal = new JCheckBox("Open in UPPAAL", false);		
 		
 		JLabel overlay = new JLabel("Busy...");
 		overlay.setOpaque(false);
@@ -105,22 +107,24 @@ public class MainWindow extends JFrame {
 				t.setInputFile(inputFilePanel.txtFileName.getText());
 				t.setOutputFile(outputFilePanel.txtFileName.getText());
 				
-				t.addListener(new TransformationEngine.ThreadCompleteListener() {
-					@Override
-					public void notifyOfThreadComplete(Thread thread) {
-						if(t.isSuccess()) {
-							btnTransform.setBackground(Color.GREEN);
-							
-							if(chkOpenInUppaal.isSelected()) {
-								runUppaal(t.getOutputFile());
-							}
-						} else {
-							btnTransform.setBackground(Color.RED);
-						}
+				if(t.execute()) {
+					btnTransform.setBackground(Color.GREEN);
+					
+					if(chkOpenInUppaal.isSelected()) {
+						runUppaal(t.getOutputFile());
+					} else {
+						
+						QueryEngine qe = new QueryEngine(t);
+						
+						qe.add(new NotDeadlockQuery());
+						
+						qe.execute();
+						
 					}
-				});
+				} else {
+					btnTransform.setBackground(Color.RED);
+				}
 				
-				t.start();
 
 			}
 		});

@@ -483,7 +483,13 @@ operation createAssignmentExpr(firstExpr : Uppaal!Expression, secondExpr : Uppaa
     return assignment;
 }
 
-
+operation Uppaal!Variable setClockRate(value) : Uppaal!ClockRateExpression
+{
+    var cre : Uppaal!ClockRateExpression = new Uppaal!ClockRateExpression();
+    cre.firstExpr = self.createReferringExpression();
+    cre.secondExpr = createLiteralExpression(value);
+    return cre;
+}
 
 operation Uppaal!Variable simpleAssignment(value) : Uppaal!AssignmentExpression
 {
