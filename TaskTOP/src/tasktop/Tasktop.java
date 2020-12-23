@@ -1,5 +1,8 @@
 package tasktop;
 
+import tasktop.query.NotDeadlockQuery;
+import tasktop.query.ReachabilityQuery;
+import tasktop.query.Query.Expr;
 import transformer.CTT2UPPAAL;
 import transformer.CTTXML2CTT;
 import transformer.UPPAAL2XML;
@@ -96,7 +99,15 @@ public class Tasktop {
 			t.setInputFile(inputFile);
 			t.setOutputFile(outputFile);
 			
-			t.execute();
+			if(t.execute()) {			
+				QueryEngine qe = new QueryEngine(t);
+				
+				qe.add(new ReachabilityQuery(
+								new Expr("top_level.Done")
+						));
+				
+				qe.execute();
+			}
 		}
 		
 

@@ -2,10 +2,8 @@ package transformer;
 
 import java.io.FileWriter;
 import java.io.IOException;
-
 import org.muml.uppaal.NTA;
 import org.muml.uppaal.serialization.UppaalSerialization;
-
 import tasktop.ModelResource;
 
 public class UPPAAL2XML extends BaseTransformer {

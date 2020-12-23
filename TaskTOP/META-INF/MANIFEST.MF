@@ -11,14 +11,30 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.epsilon.eol.engine;bundle-version="2.0.0",
  org.eclipse.epsilon.etl.engine;bundle-version="2.0.0",
  org.eclipse.epsilon.evl.engine;bundle-version="2.0.0",
- org.eclipse.xtext.xbase.lib;bundle-version="2.21.0",
+ org.eclipse.xtext.xbase.lib;bundle-version="2.10.0",
  org.eclipse.emf.mapping;bundle-version="2.12.0",
- org.eclipse.ui.workbench
+ org.eclipse.ui.workbench,
+ org.muml.uppaal,
+ org.muml.uppaal.serialization,
+ org.muml.core,
+ com.google.inject,
+ org.muml.core.common,
+ org.eclipse.emf.mwe.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-14
 Automatic-Module-Name: TaskTOP
 Bundle-ActivationPolicy: lazy
-Import-Package: ctt,
+Import-Package: com.google.inject;bundle-version="3.0.0",
+ ctt,
  ctt.impl,
- org.muml.uppaal,
- org.muml.uppaal.impl,
- org.muml.uppaal.serialization
+ org.eclipse.m2m.qvt.oml.blackbox.java,
+ org.eclipse.xtext.resource,
+ org.muml.uppaal.cmd,
+ org.muml.uppaal.cmd.options.misc,
+ org.muml.uppaal.cmd.options.trace,
+ org.muml.uppaal.cmd.options.tuning,
+ org.muml.uppaal.job,
+ org.muml.uppaal.options,
+ org.muml.uppaal.preferences,
+ org.muml.uppaal.requirements,
+ org.muml.uppaal.trace,
+ org.muml.uppaal.trace.scoping

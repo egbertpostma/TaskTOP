@@ -29,6 +29,8 @@ import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import tasktop.query.NotDeadlockQuery;
+import tasktop.query.Query.Expr;
+import tasktop.query.ReachabilityQuery;
 
 
 public class MainWindow extends JFrame {
@@ -117,6 +119,12 @@ public class MainWindow extends JFrame {
 						QueryEngine qe = new QueryEngine(t);
 						
 						qe.add(new NotDeadlockQuery());
+						qe.add(new ReachabilityQuery(
+								Expr.and(
+										new Expr("top_level.Done"),
+										new Expr("top_level.elapsedTime > 0")
+										)
+								));
 						
 						qe.execute();
 						

@@ -4,3 +4,15 @@
 [submodule "uppaal"]
 	path = uppaal
 	url = https://github.com/egbertpostma/uppaal.git
+[submodule "uppaal-model"]
+	path = uppaal-model
+	url = https://github.com/egbertpostma/uppaal-model.git
+[submodule "mechatronicuml-core"]
+	path = mechatronicuml-core
+	url = https://github.com/egbertpostma/mechatronicuml-core.git
+[submodule "mechatronicuml-graphvizadapter"]
+	path = mechatronicuml-graphvizadapter
+	url = https://github.com/egbertpostma/mechatronicuml-graphvizadapter.git
+[submodule "mechatronicuml-uppaaladapter"]
+	path = mechatronicuml-uppaaladapter
+	url = https://github.com/fraunhofer-iem/mechatronicuml-uppaaladapter.git
