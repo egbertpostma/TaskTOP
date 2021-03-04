@@ -1,7 +1,11 @@
 package tasktop;
 
+
+import tasktop.query.LivenessQuery;
 import tasktop.query.NotDeadlockQuery;
 import tasktop.query.ReachabilityQuery;
+import tasktop.query.SafetyQuery;
+import tasktop.query.Query;
 import tasktop.query.Query.Expr;
 import transformer.CTT2UPPAAL;
 import transformer.CTTXML2CTT;
@@ -102,9 +106,42 @@ public class Tasktop {
 			if(t.execute()) {			
 				QueryEngine qe = new QueryEngine(t);
 				
-				qe.add(new ReachabilityQuery(
-								new Expr("top_level.Done")
-						));
+//				qe.add(new NotDeadlockQuery());
+//				qe.add(new ReachabilityQuery(
+//							new Expr("t_Cancel.Done")
+//						));
+//				qe.add(new SafetyQuery(
+//						Expr.not(new Expr("top_level.Done"))
+//					));
+				
+//				qe.add(new ReachabilityQuery(
+//							Expr.and(
+//								new Expr("t_Task_1.Done"),
+//								Expr.not(new Expr("t_Task_2.Done"))
+//								)
+//						));
+//				
+//				qe.add(new SafetyQuery(
+//						Expr.not( 
+//							Expr.and(
+//								Expr.not(new Expr("t_Task_1.Done")),
+//								new Expr("t_Task_2.Done")
+//							)
+//						)
+//					));
+//				
+//				qe.add(new LivenessQuery(
+//						Expr.and(
+//								new Expr("t_Task_1.Done"),
+//								new Expr("t_Task_2.Done")
+//							), 
+//						new Expr("top_level.Done")
+//					));
+//				
+				qe.add(new LivenessQuery(
+						new Expr("t_CloseAccess.Done"),
+						new Expr("top_level.Done")
+					));
 				
 				qe.execute();
 			}

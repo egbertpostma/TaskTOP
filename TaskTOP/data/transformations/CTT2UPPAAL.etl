@@ -200,8 +200,11 @@ operation getTemplateByOperatorType(operator : CTT!TemporalOperator) : Uppaal!Te
     if(operator != null) {
         templateName = operator.type().name.replace("Operator", "");
     }
+    
+    var template : Uppaal!Template = Uppaal!Template.allInstances().selectOne(t | t.name == templateName);
+    if(template == null) throw "Template " + templateName + " does not exist!";
         
-    return Uppaal!Template.allInstances().select(t | t.name == templateName).first();
+    return template;
 }
 /*
 operation CTT!Task createTemplateDeclaration(index: Integer) : Uppaal!TemplateDeclaration {

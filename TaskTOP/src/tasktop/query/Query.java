@@ -4,7 +4,7 @@ public abstract class Query {
 	
 	private boolean bOpen = false;
 	
-	private StringBuilder sb = new StringBuilder();
+	protected StringBuilder sb = new StringBuilder();
 	
 	protected Query(String id, Expr expression) {
 		sb.append(id);
@@ -12,6 +12,10 @@ public abstract class Query {
 			sb.append(" ");
 			sb.append(expression.toString());
 		}
+	}
+	
+	protected Query() {
+		
 	}
 	
 	public static class Expr {
@@ -28,19 +32,19 @@ public abstract class Query {
 		
 		
 		public static Expr and(Expr left, Expr right) {
-			return new Expr(left.toString() + " && " + right.toString());
+			return Expr.b(new Expr(left + " && " + right));
 		}
 		
 		public static Expr or(Expr left, Expr right) {
-			return new Expr(left.toString() + " || " + right.toString());
+			return Expr.b(new Expr(left + " || " + right));
 		}
 		
 		public static Expr not(Expr expr) {
-			return new Expr("!(" + expr.toString() + ")");
+			return new Expr("!" + Expr.b(expr));
 		}
 		
 		public static Expr b(Expr expr) {
-			return new Expr("(" + expr.toString() + ")");
+			return new Expr("(" + expr + ")");
 		}
 		
 	}
