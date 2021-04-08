@@ -2,32 +2,22 @@ package tasktop;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.GridBagLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Set;
 
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import tasktop.panels.QueryPanel;
 import tasktop.query.NotDeadlockQuery;
 import tasktop.query.Query.Expr;
 import tasktop.query.ReachabilityQuery;
@@ -73,6 +63,9 @@ public class MainWindow extends JFrame {
 			}
 		}
 	}
+	
+	private TransformationEngine t = new TransformationEngine();
+	private QueryPanel qp = new QueryPanel(t);
 		
 	public MainWindow() {
 		super();
@@ -105,32 +98,22 @@ public class MainWindow extends JFrame {
 		btnTransform.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 	
-				TransformationEngine t = new TransformationEngine();
+
 				t.setInputFile(inputFilePanel.txtFileName.getText());
 				t.setOutputFile(outputFilePanel.txtFileName.getText());
 				
 				if(t.execute()) {
 					btnTransform.setBackground(Color.GREEN);
 					
+					qp.setEnabled(true);
+					
 					if(chkOpenInUppaal.isSelected()) {
 						runUppaal(t.getOutputFile());
-					} else {
-						
-						QueryEngine qe = new QueryEngine(t);
-						
-						qe.add(new NotDeadlockQuery());
-						qe.add(new ReachabilityQuery(
-								Expr.and(
-										new Expr("top_level.Done"),
-										new Expr("top_level.elapsedTime > 0")
-										)
-								));
-						
-						qe.execute();
-						
 					}
 				} else {
 					btnTransform.setBackground(Color.RED);
+					
+					qp.setEnabled(true);
 				}
 				
 
@@ -142,12 +125,15 @@ public class MainWindow extends JFrame {
 		
 		add(transformPanel);
 		
+		qp.setEnabled(false);	
+		add(qp);
+		
 		pack();
 	}
 	
 	private void runUppaal(String outputFileName) {
 		
-		ProcessBuilder pb = new ProcessBuilder("java", "-jar", "/home/egbert/dev-tools/uppaal64-4.1.24/uppaal.jar", outputFileName); 
+		ProcessBuilder pb = new ProcessBuilder("java", "-jar", "c:/uppaal-4.1.24/uppaal.jar", outputFileName); 
 		try {
 			Process procUppaal = pb.start();
 			if(procUppaal.waitFor() != 0) {

@@ -1,15 +1,7 @@
 package tasktop;
 
-
-import tasktop.query.LivenessQuery;
-import tasktop.query.NotDeadlockQuery;
-import tasktop.query.ReachabilityQuery;
-import tasktop.query.SafetyQuery;
-import tasktop.query.Query;
 import tasktop.query.Query.Expr;
-import transformer.CTT2UPPAAL;
-import transformer.CTTXML2CTT;
-import transformer.UPPAAL2XML;
+import tasktop.query.ReachabilityQuery;
 
 public class Tasktop {
 	
@@ -138,8 +130,7 @@ public class Tasktop {
 //						new Expr("top_level.Done")
 //					));
 //				
-				qe.add(new LivenessQuery(
-						new Expr("t_CloseAccess.Done"),
+				qe.add(new ReachabilityQuery(
 						new Expr("top_level.Done")
 					));
 				

@@ -17,7 +17,7 @@ operation createTopLevelTemplate() : Uppaal!Template {
     //// Add locations
     
     // Add initial location
-    var loc_init    = template.createLocation("Init", 0, 0);
+    var loc_init    = template.createLocation("Init", 0, 0).makeCommitted();
     var loc_running = template.createLocation("Waiting", 1, 0);
     var loc_done    = template.createLocation("Done", 2, 0);
     

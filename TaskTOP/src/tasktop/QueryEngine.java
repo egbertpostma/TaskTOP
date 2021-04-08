@@ -9,8 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.emf.common.util.BasicDiagnostic;
+import org.eclipse.emf.common.util.Diagnostic;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.emc.emf.EmfModel;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -36,6 +42,7 @@ import org.muml.uppaal.templates.Location;
 import org.muml.uppaal.trace.DiagnosticTraceStandaloneSetup;
 import org.muml.uppaal.trace.LocationActivity;
 import org.muml.uppaal.trace.ProcessIdentifier;
+import org.muml.uppaal.trace.Result;
 import org.muml.uppaal.trace.State;
 import org.muml.uppaal.trace.Trace;
 import org.muml.uppaal.trace.TraceItem;
@@ -111,6 +118,18 @@ public class QueryEngine {
 	}
 
 	private TraceRepository traceRepository;
+	
+	public boolean allTracesSuccessful() {
+		if(traceRepository == null)
+			return false;
+		
+		for(Trace t : traceRepository.getTraces()) {
+			if(t.getResult() == Result.FAILURE)
+				return false;
+		}
+		
+		return true;
+	}
 
 	public boolean execute() {
 		if(transformationEngine == null) {
@@ -143,6 +162,8 @@ public class QueryEngine {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		traceRepository = null;
 
 		
 		IPath modelPath = Path.fromOSString(transformationEngine.getOutputFile());
@@ -167,10 +188,7 @@ public class QueryEngine {
 			int exitcode = proc.waitForExitValue();
 			
 			System.out.println("\tDONE");
-			
-			if(exitcode != 0) {
-				throw new Exception("Code: " + exitcode);
-			}
+	
 			
 			stringWriter.flush();
 			stringWriter.close();
@@ -188,30 +206,31 @@ public class QueryEngine {
 
 				DiagnosticTraceScopeProviderSingleton.getScopeProvider().setNTA(nta);
 //
-//				Resource resource = resset.getResource(
-//						URI.createFileURI("C:/Users/Egbert/Documents/test_ctte_uppaal.trace"), true);
+				Resource resource = resset.getResource(
+						URI.createFileURI("C:/Users/Egbert/Documents/test_ctte_uppaal.trace"), true);
 //				
-//				Diagnostic resourceDiagnostic = EcoreUtil.computeDiagnostic(resource, false);
-//				
-//				if (!BasicDiagnostic.toIStatus(resourceDiagnostic).isOK()) {
-//					BasicDiagnostic parseDiagnostic = new BasicDiagnostic("org.muml.uppaal.job",
-//							resourceDiagnostic.getCode(), "Parsing the UPPAAL diagnostic trace failed", null);
-//					parseDiagnostic.merge(resourceDiagnostic);
-//	
-//					throw new CoreException(BasicDiagnostic.toIStatus(parseDiagnostic));
-//				}
-//	
-//				assert !resource.getContents().isEmpty()
-//				&& resource.getContents().get(0) instanceof TraceRepository;
+				Diagnostic resourceDiagnostic = EcoreUtil.computeDiagnostic(resource, false);
+				
+				if (!BasicDiagnostic.toIStatus(resourceDiagnostic).isOK()) {
+					BasicDiagnostic parseDiagnostic = new BasicDiagnostic("org.muml.uppaal.job",
+							resourceDiagnostic.getCode(), "Parsing the UPPAAL diagnostic trace failed", null);
+					parseDiagnostic.merge(resourceDiagnostic);
+	
+					throw new CoreException(BasicDiagnostic.toIStatus(parseDiagnostic));
+				}
+	
+				assert !resource.getContents().isEmpty()
+				&& resource.getContents().get(0) instanceof TraceRepository;
 				
 				System.out.print("Start loading the model...");
 				
 				EmfModel emfModel = new EmfModel();
-				emfModel.setName("Trace");
-				emfModel.setMetamodelUri(TracePackage.eINSTANCE.getNsURI());
-				emfModel.setModelFile("C:/Users/Egbert/Documents/test_ctte_uppaal.trace");
-				emfModel.setReadOnLoad(true);
-				emfModel.load();
+//				emfModel.setName("Trace");
+//				emfModel.setMetamodelUri(TracePackage.eINSTANCE.getNsURI());
+//				emfModel.setModelFile("C:/Users/Egbert/Documents/test_ctte_uppaal.trace");
+//				emfModel.setReadOnLoad(true);
+//				emfModel.load();
+				emfModel.setResource(resource);
 				
 				System.out.println("\tDONE");
 				
