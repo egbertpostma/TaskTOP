@@ -130,6 +130,12 @@ public class QueryEngine {
 		
 		return true;
 	}
+	
+	private String lastResult = "";
+	
+	public String lastResult() {
+		return lastResult;
+	}
 
 	public boolean execute() {
 		if(transformationEngine == null) {
@@ -164,6 +170,8 @@ public class QueryEngine {
 		}
 		
 		traceRepository = null;
+		
+		lastResult = "Results:";
 
 		
 		IPath modelPath = Path.fromOSString(transformationEngine.getOutputFile());
@@ -237,9 +245,13 @@ public class QueryEngine {
 				
 				traceRepository = (TraceRepository) emfModel.allContents().iterator().next();
 				
+				int i = 0;
+				
 				for (Trace trace : traceRepository.getTraces()) {
 					System.out.println("Trace: " + trace.getProperty());
 					System.out.println(trace.getResult());
+					lastResult += "\nQuery: " + queries.get(i);
+					lastResult += "\twas " + ((trace.getResult() == Result.SUCCESS) ? "successful" : "a failure");
 					
 					for (TraceItem traceItem : trace.getTraceItems()) {
 						if(traceItem instanceof State) {

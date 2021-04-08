@@ -45,7 +45,7 @@ operation createLeafTaskTemplate() : Uppaal!Template {
     //// Add locations
     
     // Add initial location
-    var loc_disabled              = template.createLocation("Init", 0, 0);
+    var loc_disabled              = template.createLocation("Disabled", 0, 0);
     var loc_waiting               = template.createLocation("Waiting", 1, 0);
     var loc_suspendedWhileWaiting = template.createLocation("SuspendedWhileWaiting", 2, 0);
     var loc_running               = template.createLocation("Running", 1, 1);

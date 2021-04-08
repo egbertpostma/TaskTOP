@@ -73,6 +73,7 @@ public class MainWindow extends JFrame {
 		setTitle("TaskTOP");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		setSize(400, 400);
 		
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		
@@ -128,7 +129,6 @@ public class MainWindow extends JFrame {
 		qp.setEnabled(false);	
 		add(qp);
 		
-		pack();
 	}
 	
 	private void runUppaal(String outputFileName) {

@@ -45,6 +45,7 @@ public class QueryPanel extends Panel implements ActionListener{
 	private JRadioButton rbtnOtherQuery;
 	private JComboBox<String> cmbTasks;
 	private Panel panelQueryImpl;
+	private JTextArea txtResults;
 
 	public QueryPanel(TransformationEngine engine) {
 		super(new GridLayout(4,1));
@@ -77,8 +78,6 @@ public class QueryPanel extends Panel implements ActionListener{
 		
 		JComboBox<String> cmbTaskStates = new JComboBox<String>();
 		cmbTaskStates.addItem("Disabled");
-		cmbTaskStates.addItem("Enabled");
-		cmbTaskStates.addItem("Suspended");
 		cmbTaskStates.addItem("Done");
 		
 		panelReachQuery.add(cmbTaskStates);
@@ -97,16 +96,23 @@ public class QueryPanel extends Panel implements ActionListener{
 				btnQuery.setBackground(null);
 				QueryEngine qe = new QueryEngine(engine);
 				
+				String selectedTask = cmbTasks.getSelectedItem().toString();
+				if(!selectedTask.equals("top_level")) selectedTask = "t_" + selectedTask;
+				String selectedLocation = cmbTaskStates.getSelectedItem().toString();
+				
 				qe.add(new ReachabilityQuery(
-						new Expr("t_" + cmbTasks.getSelectedItem().toString() + "." + cmbTaskStates.getSelectedItem().toString())));
+						new Expr(selectedTask + "." + selectedLocation)));
 				
 				if(qe.execute()) {
-					if(qe.allTracesSuccessful())
+					if(qe.allTracesSuccessful()) {
 						btnQuery.setBackground(Color.GREEN);
-					else
+						txtResults.setText(qe.lastResult());
+					} else {
 						btnQuery.setBackground(Color.ORANGE);
+					}
 				} else {
 					btnQuery.setBackground(Color.RED);
+					txtResults.setText("Could not perform queries");
 				}
 			}
 		});
@@ -114,7 +120,7 @@ public class QueryPanel extends Panel implements ActionListener{
 		add(rbtnPanel);
 		add(panelQueryImpl);
 		
-		JTextArea txtResults = new JTextArea();
+		txtResults = new JTextArea();
 		
 		add(btnQuery);
 		add(txtResults);
@@ -123,6 +129,8 @@ public class QueryPanel extends Panel implements ActionListener{
 
 	private void refreshTasks() {
 		cmbTasks.removeAllItems();
+		
+		cmbTasks.addItem("top_level");
 
 		if(engine != null && engine.isSuccess()) {
 			ModelResource cttModel = engine.getCTTModel();
