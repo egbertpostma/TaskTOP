@@ -106,10 +106,10 @@ public class QueryPanel extends Panel implements ActionListener{
 				if(qe.execute()) {
 					if(qe.allTracesSuccessful()) {
 						btnQuery.setBackground(Color.GREEN);
-						txtResults.setText(qe.lastResult());
 					} else {
 						btnQuery.setBackground(Color.ORANGE);
 					}
+					txtResults.setText(qe.lastResult());
 				} else {
 					btnQuery.setBackground(Color.RED);
 					txtResults.setText("Could not perform queries");

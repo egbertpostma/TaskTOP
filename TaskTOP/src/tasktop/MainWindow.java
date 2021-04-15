@@ -2,6 +2,7 @@ package tasktop;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
@@ -75,10 +76,13 @@ public class MainWindow extends JFrame {
 		setLocationRelativeTo(null);
 		setSize(400, 400);
 		
-		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		getContentPane().setLayout(new FlowLayout());
 		
 		FilePanel inputFilePanel = new FilePanel(true);
 		FilePanel outputFilePanel = new FilePanel(false);
+		
+		inputFilePanel.setPreferredSize(new Dimension(380, 32));
+		outputFilePanel.setPreferredSize(new Dimension(380, 32));
 		
 		add(inputFilePanel);
 		add(outputFilePanel);

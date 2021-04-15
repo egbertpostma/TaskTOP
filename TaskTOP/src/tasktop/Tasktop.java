@@ -1,5 +1,6 @@
 package tasktop;
 
+import tasktop.query.LivenessQuery;
 import tasktop.query.Query.Expr;
 import tasktop.query.ReachabilityQuery;
 
@@ -131,6 +132,9 @@ public class Tasktop {
 //					));
 //				
 				qe.add(new ReachabilityQuery(
+						new Expr("top_level.Done")
+					));
+				qe.add(new LivenessQuery(
 						new Expr("top_level.Done")
 					));
 				
