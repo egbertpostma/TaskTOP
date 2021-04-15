@@ -10,6 +10,13 @@ post {
 }
 */
 
+context CTTXML!t_COOPConcurTaskTrees {
+	constraint CannotHandleCOOPTaskTrees {
+		check: false
+		message: "COOP Task Trees are not supported!"
+	}
+}
+
 context CTTXML!t_TaskModel {
 
     constraint TaskModelDefined {
