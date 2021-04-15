@@ -12,10 +12,10 @@ post {
 }
 */
 
-operation createLeafTaskTemplate() : Uppaal!Template {
+operation createApplicationLeafTaskTemplate() : Uppaal!Template {
     //// Create template
     var template = new Uppaal!Template();
-    template.name = "LeafTask";
+    template.name = "ApplicationLeafTask";
     
     //// Add declarations
     
@@ -46,8 +46,7 @@ operation createLeafTaskTemplate() : Uppaal!Template {
     
     // Add initial location
     var loc_disabled              = template.createLocation("Disabled", 0, 0);
-    var loc_waiting               = template.createLocation("Waiting", 1, 0);
-    var loc_suspendedWhileWaiting = template.createLocation("SuspendedWhileWaiting", 2, 0);
+    var loc_waiting               = template.createLocation("Waiting", 1, 0).makeCommitted();
     var loc_running               = template.createLocation("Running", 1, 1);
     var loc_suspendedWhileRunning = template.createLocation("SuspendedWhileRunning", 2, 1);
     var loc_done_s1               = template.createLocation("_1", 1, 2).makeCommitted();
@@ -76,14 +75,6 @@ operation createLeafTaskTemplate() : Uppaal!Template {
     template.createEdge(loc_disabled, loc_waiting)
                                     .setSync(var_activate.getArrayExpression(var_id), false);
     
-
-                                    
-    template.createEdge(loc_waiting, loc_suspendedWhileWaiting)
-                                    .setSync(var_suspend.getArrayExpression(var_id), false);
-                                    
-    template.createEdge(loc_suspendedWhileWaiting, loc_waiting)
-                                    .setSync(var_resume.getArrayExpression(var_id), false);
-    
     template.createEdge(loc_waiting, loc_running)
                                     .setSync(var_start.getArrayExpression(var_id), true)
                                     .addUpdate(cl_elapsedTime.simpleAssignment(0));
@@ -108,12 +99,6 @@ operation createLeafTaskTemplate() : Uppaal!Template {
                                     
     // Deactivation edges                        
     template.createEdge(loc_disabled, loc_disabled)
-                                    .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
-   
-    template.createEdge(loc_waiting, loc_disabled)
-                                    .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
-                                    
-    template.createEdge(loc_suspendedWhileWaiting, loc_disabled)
                                     .setSync(var_deactivate.getArrayExpression(var_id), false).setColor(Uppaal!ColorKind#LIGHTGREY);
                                     
     template.createEdge(loc_running, loc_disabled)

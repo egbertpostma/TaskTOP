@@ -1,6 +1,7 @@
 import "UPPAAL_stdFunctions.etl";
 import "ctt2uppaal/TopLevel.etl";
-import "ctt2uppaal/LeafTask.etl";
+import "ctt2uppaal/InteractionLeafTask.etl";
+import "ctt2uppaal/ApplicationLeafTask.etl";
 import "ctt2uppaal/NullTask.etl";
 import "ctt2uppaal/Choice.etl";
 import "ctt2uppaal/SequentialEnablingInfo.etl";
@@ -63,7 +64,8 @@ rule CTT2UPPAAL
         
         // Create default templates
         uppaal.template.add(createTopLevelTemplate());
-        uppaal.template.add(createLeafTaskTemplate());
+        uppaal.template.add(createInteractionLeafTaskTemplate());
+        uppaal.template.add(createApplicationLeafTaskTemplate());
         uppaal.template.add(createNullTaskTemplate());
         uppaal.template.add(createChoiceTaskTemplate());
         uppaal.template.add(createSequentialEnablingTaskTemplate());
@@ -117,28 +119,28 @@ rule CTT2UPPAAL
 rule abstractionTask2Template
 transform task : CTT!AbstractionTask
 to ret : List {
-    task.createTemplateDeclaration(ret);
+    task.createTemplateDeclaration(ret, 0);
 }
 
 @lazy
 rule interactionTask2Template
 transform task : CTT!InteractionTask
 to ret : List {
-    task.createTemplateDeclaration(ret);
+    task.createTemplateDeclaration(ret, 1);
 }
 
 @lazy
 rule applicationTask2Template
 transform task : CTT!ApplicationTask
 to ret : List {
-    task.createTemplateDeclaration(ret);
+    task.createTemplateDeclaration(ret, 2);
 }
 
 @lazy
 rule userTask2Template
 transform task : CTT!UserTask
 to ret : List {
-    task.createTemplateDeclaration(ret);
+    task.createTemplateDeclaration(ret, 3);
 }
 
 @lazy
@@ -170,14 +172,20 @@ operation CTT!Task createRootTemplateDeclaration() : Uppaal!TemplateDeclaration 
     return decl;
 }
 
-operation CTT!Task createTemplateDeclaration(ret : List) {
+operation CTT!Task createTemplateDeclaration(ret : List, type : Integer) {
     var index = taskIndex;
     taskIndex++;
     
     var decl = new Uppaal!TemplateDeclaration();
     decl.declaredTemplate = new Uppaal!RedefinedTemplate();
     decl.declaredTemplate.name = "t_" + self.id.asString();
-    decl.declaredTemplate.referredTemplate = getTemplateByOperatorType(self.operator);
+    if(self.operator == null) {
+    	// so leaf task...
+    	decl.declaredTemplate.referredTemplate = getTemplateByTaskType(type);
+    } else { 
+    	// so non-leaf task...
+    	decl.declaredTemplate.referredTemplate = getTemplateByOperatorType(self.operator);
+    }
     
     decl.argument.add(createLiteralExpression(index));
     decl.argument.add(createLiteralExpression(self.iterative));
@@ -194,12 +202,31 @@ operation CTT!Task createTemplateDeclaration(ret : List) {
     ret.add(index);
 }
 
-operation getTemplateByOperatorType(operator : CTT!TemporalOperator) : Uppaal!Template {
-    var templateName = "LeafTask";
+operation getTemplateByTaskType(type : Integer) : Uppaal!Template {
+	if(type < 0 or type > 3) throw "type " + type + " does not exist!";
+	
+	var templateName = "InteractionLeafTask";
+	
+	switch(type) {
+		case 0: templateName = "InteractionLeafTask"; 
+		case 1: templateName = "InteractionLeafTask";
+		case 2: templateName = "ApplicationLeafTask";
+		case 3: templateName = "InteractionLeafTask";
+	}
+	
+	templateName.println();
+	
+	var template : Uppaal!Template = Uppaal!Template.allInstances().selectOne(t | t.name == templateName);
+    if(template == null) throw "Template " + templateName + " does not exist!";
     
-    if(operator != null) {
-        templateName = operator.type().name.replace("Operator", "");
-    }
+        
+    return template;	
+}
+
+operation getTemplateByOperatorType(operator : CTT!TemporalOperator) : Uppaal!Template {
+    if(operator == null) throw "operator not provided!";
+    
+    var templateName = operator.type().name.replace("Operator", "");
     
     var template : Uppaal!Template = Uppaal!Template.allInstances().selectOne(t | t.name == templateName);
     if(template == null) throw "Template " + templateName + " does not exist!";

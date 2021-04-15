@@ -7,6 +7,7 @@ operation createTopLevelTemplate() : Uppaal!Template {
     
     // Add elapsedTime clock
     var cl_elapsedTime = template.declareClock("elapsedTime");
+    var cl_totalTime   = template.declareClock("totalTime");
     
     //// Add parameters
     
@@ -18,8 +19,11 @@ operation createTopLevelTemplate() : Uppaal!Template {
     
     // Add initial location
     var loc_init    = template.createLocation("Disabled", 0, 0).makeCommitted();
-    var loc_running = template.createLocation("Waiting", 1, 0);
-    var loc_done    = template.createLocation("Done", 2, 0);
+    var loc_waiting = template.createLocation("Waiting", 1, 0);
+    var loc_running = template.createLocation("Running", 2, 0);
+    var loc_done    = template.createLocation("Done", 3, 0);
+    
+    loc_done.setInvariant(createConjunction(cl_elapsedTime.setClockRate(0), cl_totalTime.setClockRate(0)));
     
     template.init = loc_init;
     
@@ -27,11 +31,16 @@ operation createTopLevelTemplate() : Uppaal!Template {
     
     // Add edge variables
     var var_activate = createVariable("activate");
+    var var_start    = createVariable("start");
     var var_done     = createVariable("done");
     
     // Add actual edges
-    template.createEdge(loc_init, loc_running)
+    template.createEdge(loc_init, loc_waiting)
                                     .setSync(var_activate.getArrayExpression(var_root_task_id), true)
+                                    .addUpdate(cl_totalTime.simpleAssignment(0));
+                                   
+    template.createEdge(loc_waiting, loc_running)
+                                    .setSync(var_start.getArrayExpression(var_root_task_id), false)
                                     .addUpdate(cl_elapsedTime.simpleAssignment(0));
     
     template.createEdge(loc_running, loc_done)
