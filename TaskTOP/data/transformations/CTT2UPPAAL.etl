@@ -205,6 +205,9 @@ operation CTT!Task createTemplateDeclaration(ret : List, type : Integer) {
 operation getTemplateByTaskType(type : Integer) : Uppaal!Template {
 	if(type < 0 or type > 3) throw "type " + type + " does not exist!";
 	
+	if(type == 0) throw "Still found Abstract task as leaf task!";
+	if(type == 3) "Found User task! We'll interpret it as an interaction task..".errln();
+	
 	var templateName = "InteractionLeafTask";
 	
 	switch(type) {
@@ -213,9 +216,7 @@ operation getTemplateByTaskType(type : Integer) : Uppaal!Template {
 		case 2: templateName = "ApplicationLeafTask";
 		case 3: templateName = "InteractionLeafTask";
 	}
-	
-	templateName.println();
-	
+		
 	var template : Uppaal!Template = Uppaal!Template.allInstances().selectOne(t | t.name == templateName);
     if(template == null) throw "Template " + templateName + " does not exist!";
     

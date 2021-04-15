@@ -33,7 +33,6 @@ context CTTXML!t_Task {
         }
     }
     
-    
     constraint IdentifiersShouldBeAlfa {
         check: self.a_Identifier.matches("[a-zA-Z0-9_ ]*") == true
         message: self.a_Identifier + " contains non-alfa characters..."
@@ -46,7 +45,14 @@ context CTTXML!t_Task {
             return self.e_SubTask.c_Task.atLeastNMatch(a | (a.e_TemporalOperator != null and a.e_TemporalOperator.a_name = operator), self.e_SubTask.c_Task.size()-1);
         }
         message: "The subtasks of Task " + self.a_Identifier + " should share the same temporal operator.\n"
-
+    }
+    
+    constraint LeafTasksCannotBeOfTypeAbstract {
+    	guard: self.e_SubTask == null
+    	check {
+    		return self.a_Category != "abstraction";
+    	}
+    	message: self.a_Identifier + " is a leaf task and is of type 'abstraction'!"
     }
     
 }
