@@ -9,14 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.emf.common.util.BasicDiagnostic;
-import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.emc.emf.EmfModel;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -46,7 +42,6 @@ import org.muml.uppaal.trace.Result;
 import org.muml.uppaal.trace.State;
 import org.muml.uppaal.trace.Trace;
 import org.muml.uppaal.trace.TraceItem;
-import org.muml.uppaal.trace.TracePackage;
 import org.muml.uppaal.trace.TraceRepository;
 import org.muml.uppaal.trace.scoping.DiagnosticTraceScopeProviderSingleton;
 
@@ -213,19 +208,10 @@ public class QueryEngine {
 			synchronized (DiagnosticTraceScopeProviderSingleton.getScopeProvider()) {
 
 				DiagnosticTraceScopeProviderSingleton.getScopeProvider().setNTA(nta);
-//
+
 				Resource resource = resset.getResource(
 						URI.createFileURI("C:/Users/Egbert/Documents/test_ctte_uppaal.trace"), true);
-//				
-				Diagnostic resourceDiagnostic = EcoreUtil.computeDiagnostic(resource, false);
-				
-				if (!BasicDiagnostic.toIStatus(resourceDiagnostic).isOK()) {
-					BasicDiagnostic parseDiagnostic = new BasicDiagnostic("org.muml.uppaal.job",
-							resourceDiagnostic.getCode(), "Parsing the UPPAAL diagnostic trace failed", null);
-					parseDiagnostic.merge(resourceDiagnostic);
-	
-					throw new CoreException(BasicDiagnostic.toIStatus(parseDiagnostic));
-				}
+
 	
 				assert !resource.getContents().isEmpty()
 				&& resource.getContents().get(0) instanceof TraceRepository;
@@ -268,61 +254,6 @@ public class QueryEngine {
 				}
 				
 			}
-		
-
-//			Map<String, Boolean> opt = new HashMap<String, Boolean>();
-//			opt.put(XtextResource.OPTION_RESOLVE_ALL, true);
-//
-//			NTA nta = (NTA)transformationEngine.uppaal.model().allContents().toArray()[0];
-//
-//			synchronized (DiagnosticTraceScopeProviderSingleton.getScopeProvider()) {
-//
-//				DiagnosticTraceScopeProviderSingleton.getScopeProvider().setNTA(nta);
-//
-//				resource.load(new StringInputStream(result), opt);
-//			}
-//
-//			Diagnostic resourceDiagnostic = EcoreUtil.computeDiagnostic(resource, false);
-//
-//			if (!BasicDiagnostic.toIStatus(resourceDiagnostic).isOK()) {
-//				BasicDiagnostic parseDiagnostic = new BasicDiagnostic("org.muml.uppaal.job",
-//						resourceDiagnostic.getCode(), "Parsing the UPPAAL diagnostic trace failed", null);
-//				parseDiagnostic.merge(resourceDiagnostic);
-//
-//				throw new CoreException(BasicDiagnostic.toIStatus(parseDiagnostic));
-//			}
-//
-//			assert !resource.getContents().isEmpty()
-//			&& resource.getContents().get(0) instanceof TraceRepository;
-
-
-
-
-			//		PropertyRepository pr = RequirementsFactory.eINSTANCE.createPropertyRepository();
-			//		UnaryProperty up = RequirementsFactory.eINSTANCE.createUnaryProperty();
-			//		up.setQuantifier(PathQuantifier.EXISTS);
-			//		up.setOperator(TemporalOperator.FUTURE);
-			//		CompareExpression exp = ExpressionsFactory.eINSTANCE.createCompareExpression();
-			//		
-			//		LiteralExpression expTopLevelDone = ExpressionsFactory.eINSTANCE.createLiteralExpression();
-			//		expTopLevelDone.setText("top_level.Done");
-			//
-			//		LiteralExpression expTrue = ExpressionsFactory.eINSTANCE.createLiteralExpression();
-			//		expTrue.setText("true");
-			//		
-			//		exp.setFirstExpr(expTopLevelDone);
-			//		exp.setOperator(CompareOperator.EQUAL);
-			//		exp.setSecondExpr(expTrue);
-			//		
-			//		up.setExpression(exp);
-			//		
-			//		pr.getProperties().add(up);
-			//		
-			//		CoordinationProtocolOptions options = OptionsFactory.eINSTANCE.createCoordinationProtocolOptions();
-			//		options.setTraceOptions(TraceOptions.FASTEST);
-			//		options.setConnectorOutBufferSize(8);
-			//		options.setHashTableSize(7);
-			//		options.setStateSpaceReduction(StateSpaceReduction.CONSERVATIVE);
 
 		} catch (Exception e) {
 			e.printStackTrace();
