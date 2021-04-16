@@ -46,7 +46,7 @@ operation CTTXML!t_Task getTemporalOperator() : CTT!TemporalOperator {
         case "OrderIndependence":       return new CTT!OrderIndependenceOperator();
         case "Interleaving":            return new CTT!InterleavingOperator();
         case "Synchronization":         return new CTT!SynchronizationOperator();
-        case "Parallel  ":              return new CTT!ParallelOperator();
+        case "Parallel":                return new CTT!ParallelOperator();
         case "Disabling":               return new CTT!DisablingOperator();
         case "SequentialEnablingInfo":  return new CTT!SequentialEnablingInfoOperator();
         case "SequentialEnabling":      return new CTT!SequentialEnablingOperator();

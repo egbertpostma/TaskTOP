@@ -126,13 +126,13 @@ operation CTTXML!t_Task getTaskImplementation() : CTT!Task {
 operation CTTXML!t_Task getTemporalOperator() : CTT!TemporalOperator {
     var temporalOperator = self.e_TemporalOperator;
     var temporalOperatorName = temporalOperator<>null ? temporalOperator.a_name : "";
-    
+        
     switch(temporalOperatorName) {
         case "Choice":                  return new CTT!ChoiceOperator();
         case "OrderIndependence":       return new CTT!OrderIndependenceOperator();
         case "Interleaving":            return new CTT!InterleavingOperator();
         case "Synchronization":         return new CTT!SynchronizationOperator();
-        case "Parallel  ":              return new CTT!ParallelOperator();
+        case "Parallel":                return new CTT!ParallelOperator();
         case "Disabling":               return new CTT!DisablingOperator();
         case "SequentialEnablingInfo":  return new CTT!SequentialEnablingInfoOperator();
         case "SequentialEnabling":      return new CTT!SequentialEnablingOperator();

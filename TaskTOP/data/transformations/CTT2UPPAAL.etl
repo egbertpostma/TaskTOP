@@ -4,11 +4,14 @@ import "ctt2uppaal/InteractionLeafTask.etl";
 import "ctt2uppaal/ApplicationLeafTask.etl";
 import "ctt2uppaal/NullTask.etl";
 import "ctt2uppaal/Choice.etl";
-import "ctt2uppaal/SequentialEnablingInfo.etl";
-import "ctt2uppaal/SequentialEnabling.etl";
 import "ctt2uppaal/Interleaving.etl";
+import "ctt2uppaal/Parallel.etl";
 import "ctt2uppaal/Disabling.etl";
 import "ctt2uppaal/SuspendResume.etl";
+import "ctt2uppaal/SequentialEnablingInfo.etl";
+import "ctt2uppaal/SequentialEnabling.etl";
+
+
 
 /*
 pre {
@@ -63,16 +66,22 @@ rule CTT2UPPAAL
         uppaal.systemDeclarations.system.instantiationList.add(iList);
         
         // Create default templates
+        // Top Level
         uppaal.template.add(createTopLevelTemplate());
+        // Leaf tasks
         uppaal.template.add(createInteractionLeafTaskTemplate());
         uppaal.template.add(createApplicationLeafTaskTemplate());
         uppaal.template.add(createNullTaskTemplate());
+        // Operator tasks
         uppaal.template.add(createChoiceTaskTemplate());
-        uppaal.template.add(createSequentialEnablingTaskTemplate());
-        uppaal.template.add(createSequentialEnablingInfoTaskTemplate());
+        //uppaal.template.add(createOrderIndependenceTaskTemplate());
         uppaal.template.add(createInterleavingTaskTemplate());
+        //uppaal.template.add(createSynchronizationTaskTemplate());
+        uppaal.template.add(createParallelTaskTemplate());
         uppaal.template.add(createDisablingTaskTemplate());
         uppaal.template.add(createSuspendResumeTaskTemplate());
+        uppaal.template.add(createSequentialEnablingTaskTemplate());
+        uppaal.template.add(createSequentialEnablingInfoTaskTemplate());
         
         var taskIndex = 0;
         
