@@ -9,13 +9,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import tasktop.panels.QueryPanel;
@@ -30,7 +33,7 @@ public class MainWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = -1035975675755521209L;
 
-	private class FilePanel extends Panel implements ActionListener
+	private class FilePanel extends JPanel implements ActionListener
 	{
 		/**
 		 * 
@@ -41,13 +44,19 @@ public class MainWindow extends JFrame {
 		
 		public FilePanel(boolean isInput)
 		{
-			super(new BorderLayout());
+			setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+			setBorder(new EmptyBorder(2,5,2,5));
+			
 			this.isInput = isInput;
-			add(txtFileName, BorderLayout.CENTER);
+			JLabel label = new JLabel(isInput ? "Input:" : "Output:");
+			label.setPreferredSize(new Dimension(50, 0));
+			add(label);
+			add(txtFileName);
 			txtFileName.setColumns(20);
 			JButton browseButton = new JButton("Browse");
+			browseButton.setPreferredSize(new Dimension(100, 24));
 			browseButton.addActionListener(this);
-			add(browseButton, BorderLayout.EAST);
+			add(browseButton);
 		}
 		
 		public void actionPerformed(ActionEvent e)
@@ -74,31 +83,31 @@ public class MainWindow extends JFrame {
 		setTitle("TaskTOP");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-		setSize(400, 400);
+		setSize(800,400);
 		
-		getContentPane().setLayout(new FlowLayout());
+		getContentPane().setLayout(new BorderLayout());
+		
+		
+
+		
+		Panel transformPanel = new Panel();
+		transformPanel.setLayout(new BoxLayout(transformPanel, BoxLayout.PAGE_AXIS));
 		
 		FilePanel inputFilePanel = new FilePanel(true);
 		FilePanel outputFilePanel = new FilePanel(false);
 		
-		inputFilePanel.setPreferredSize(new Dimension(380, 32));
-		outputFilePanel.setPreferredSize(new Dimension(380, 32));
-		
-		add(inputFilePanel);
-		add(outputFilePanel);
-		
-		Panel transformPanel = new Panel(new FlowLayout(FlowLayout.CENTER));
+		transformPanel.add(inputFilePanel);
+		transformPanel.add(outputFilePanel);
 		
 		JButton btnTransform = new JButton("Transform");
-		JCheckBox chkOpenInUppaal = new JCheckBox("Open in UPPAAL", false);		
+//		btnTransform.setPreferredSize(new Dimension(100, 24));
+		JCheckBox chkOpenInUppaal = new JCheckBox("Open in UPPAAL", false);	
 		
-		JLabel overlay = new JLabel("Busy...");
-		overlay.setOpaque(false);
-		overlay.setBackground(Color.RED);
+		JPanel executeTransformPanel = new JPanel(new BorderLayout());
+		executeTransformPanel.setBorder(new EmptyBorder(2,5,2,5));
+		executeTransformPanel.add(btnTransform);
 		
-		setGlassPane(overlay);
-		
-		transformPanel.add(btnTransform);
+		transformPanel.add(executeTransformPanel);
 		
 		btnTransform.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -111,6 +120,7 @@ public class MainWindow extends JFrame {
 					btnTransform.setBackground(Color.GREEN);
 					
 					qp.setEnabled(true);
+					qp.refreshTasks();
 					
 					if(chkOpenInUppaal.isSelected()) {
 						runUppaal(t.getOutputFile());
@@ -118,7 +128,7 @@ public class MainWindow extends JFrame {
 				} else {
 					btnTransform.setBackground(Color.RED);
 					
-					qp.setEnabled(true);
+					qp.setEnabled(false);
 				}
 				
 
@@ -126,12 +136,12 @@ public class MainWindow extends JFrame {
 		});
 		
 		
-		transformPanel.add(chkOpenInUppaal);
 		
-		add(transformPanel);
+		
+		add(transformPanel, BorderLayout.NORTH);
 		
 		qp.setEnabled(false);	
-		add(qp);
+		add(qp, BorderLayout.CENTER);
 		
 	}
 	

@@ -175,7 +175,7 @@ public class QueryEngine {
 		CoordinationProtocolOptions options = OptionsFactory.eINSTANCE.createCoordinationProtocolOptions();
 		options.setTraceOptions(TraceOptions.FASTEST);
 		options.setConnectorOutBufferSize(8);
-		options.setHashTableSize(7);
+		options.setHashTableSize(16);
 		options.setStateSpaceReduction(StateSpaceReduction.CONSERVATIVE);
 		Command cmd = new VerifyTACommand(options);
 		cmd.addParameter(new PathArgument<VerifyTACommand>(modelPath));
@@ -206,6 +206,8 @@ public class QueryEngine {
 			NTA nta = (NTA)transformationEngine.uppaal.model().allContents().toArray()[0];
 
 			synchronized (DiagnosticTraceScopeProviderSingleton.getScopeProvider()) {
+				
+				System.out.print("Start loading the model...");
 
 				DiagnosticTraceScopeProviderSingleton.getScopeProvider().setNTA(nta);
 
@@ -216,7 +218,7 @@ public class QueryEngine {
 				assert !resource.getContents().isEmpty()
 				&& resource.getContents().get(0) instanceof TraceRepository;
 				
-				System.out.print("Start loading the model...");
+
 				
 				EmfModel emfModel = new EmfModel();
 //				emfModel.setName("Trace");
@@ -239,18 +241,18 @@ public class QueryEngine {
 					lastResult += "\nQuery: " + queries.get(i);
 					lastResult += "\twas " + ((trace.getResult() == Result.SUCCESS) ? "successful" : "a failure");
 					
-					for (TraceItem traceItem : trace.getTraceItems()) {
-						if(traceItem instanceof State) {
-							State state = (State) traceItem;
-							System.out.println("State:");
-							
-							for (LocationActivity locationActivity : state.getLocationActivities()) {
-								ProcessIdentifier process = locationActivity.getProcess();								
-								Location location = locationActivity.getLocation();
-								System.out.println("\t" + process.getTemplate().getName() + "." + location.getName());
-							}
-						}
-					}
+//					for (TraceItem traceItem : trace.getTraceItems()) {
+//						if(traceItem instanceof State) {
+//							State state = (State) traceItem;
+//							System.out.println("State:");
+//							
+//							for (LocationActivity locationActivity : state.getLocationActivities()) {
+//								ProcessIdentifier process = locationActivity.getProcess();								
+//								Location location = locationActivity.getLocation();
+//								System.out.println("\t" + process.getTemplate().getName() + "." + location.getName());
+//							}
+//						}
+//					}
 				}
 				
 			}

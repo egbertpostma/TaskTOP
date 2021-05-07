@@ -2,135 +2,96 @@ package tasktop.panels;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.management.Query;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
+import javax.swing.border.EmptyBorder;
 
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 
 import ctt.Task;
 import tasktop.ModelResource;
-import tasktop.QueryEngine;
 import tasktop.TransformationEngine;
-import tasktop.query.NotDeadlockQuery;
-import tasktop.query.ReachabilityQuery;
-import tasktop.query.Query.Expr;
 
-public class QueryPanel extends Panel implements ActionListener{
+public class QueryPanel extends JPanel implements ActionListener {
 	
 	private TransformationEngine engine = null;
 	
 	public enum QueryType {
 		REACHABILITY,
+		LIVENESS,
+		SAFETY,
 		OTHER,
 		NONE
 	}
 	
 
 	private JRadioButton rbtnReachQuery;
-	private JRadioButton rbtnOtherQuery;
-	private JComboBox<String> cmbTasks;
+	private JRadioButton rbtnLivenessQuery;
+	private JRadioButton rbtnSafetyQuery;
 	private Panel panelQueryImpl;
-	private JTextArea txtResults;
+	
+	private Collection<String> tasks = new ArrayList<String>();
+	
+	private LivenessQueryPanel livenessQueryPanel;
+	private ReachabilityQueryPanel reachabilityQueryPanel;
+	private SafetyQueryPanel safetyQueryPanel;
 
 	public QueryPanel(TransformationEngine engine) {
-		super(new GridLayout(4,1));
+		super(new BorderLayout());
+		setBorder(new EmptyBorder(2,5,2,5));
 		
 		this.engine = engine;
 
-		Panel rbtnPanel = new Panel(new GridLayout(1,3));
+		Panel rbtnPanel = new Panel(new FlowLayout(FlowLayout.LEFT));
 		ButtonGroup buttonGroup = new ButtonGroup();
 
 		rbtnReachQuery = new JRadioButton("Reachability");
 		rbtnReachQuery.setActionCommand("reach");
 		rbtnReachQuery.addActionListener(this);
 		buttonGroup.add(rbtnReachQuery);
+		
+		rbtnLivenessQuery = new JRadioButton("Liveness");
+		rbtnLivenessQuery.setActionCommand("liveness");
+		rbtnLivenessQuery.addActionListener(this);
+		buttonGroup.add(rbtnLivenessQuery);
 
-		rbtnOtherQuery = new JRadioButton("Other");
-		rbtnOtherQuery.setActionCommand("other");
-		rbtnOtherQuery.addActionListener(this);
-		buttonGroup.add(rbtnOtherQuery);
+		rbtnSafetyQuery = new JRadioButton("Safety");
+		rbtnSafetyQuery.setActionCommand("safety");
+		rbtnSafetyQuery.addActionListener(this);
+		buttonGroup.add(rbtnSafetyQuery);
 
 		rbtnPanel.add(rbtnReachQuery, 0);
-		rbtnPanel.add(rbtnOtherQuery, 1);
+		rbtnPanel.add(rbtnLivenessQuery, 1);
+		rbtnPanel.add(rbtnSafetyQuery, 2);
 
 		panelQueryImpl = new Panel(new CardLayout());
 
-		Panel panelReachQuery = new Panel(new GridLayout(1,2));
-
-		cmbTasks = new JComboBox<String>();
-
-		panelReachQuery.add(cmbTasks);
+		reachabilityQueryPanel = new ReachabilityQueryPanel(this.engine);
+		livenessQueryPanel = new LivenessQueryPanel(this.engine);
+		safetyQueryPanel = new SafetyQueryPanel(engine);
 		
-		JComboBox<String> cmbTaskStates = new JComboBox<String>();
-		cmbTaskStates.addItem("Disabled");
-		cmbTaskStates.addItem("Done");
+		panelQueryImpl.add(reachabilityQueryPanel, rbtnReachQuery.getActionCommand());
+		panelQueryImpl.add(livenessQueryPanel, rbtnLivenessQuery.getActionCommand());
+		panelQueryImpl.add(safetyQueryPanel, rbtnSafetyQuery.getActionCommand());
 		
-		panelReachQuery.add(cmbTaskStates);
 
-		Panel panelOtherQuery = new Panel(new BorderLayout());
-
-
-		panelQueryImpl.add(panelReachQuery);
-		panelQueryImpl.add(panelOtherQuery);
-		
-		JButton btnQuery = new JButton("Query...");
-		btnQuery.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				btnQuery.setBackground(null);
-				QueryEngine qe = new QueryEngine(engine);
-				
-				String selectedTask = cmbTasks.getSelectedItem().toString();
-				if(!selectedTask.equals("top_level")) selectedTask = "t_" + selectedTask;
-				String selectedLocation = cmbTaskStates.getSelectedItem().toString();
-				
-				qe.add(new ReachabilityQuery(
-						new Expr(selectedTask + "." + selectedLocation)));
-				
-				if(qe.execute()) {
-					if(qe.allTracesSuccessful()) {
-						btnQuery.setBackground(Color.GREEN);
-					} else {
-						btnQuery.setBackground(Color.ORANGE);
-					}
-					txtResults.setText(qe.lastResult());
-				} else {
-					btnQuery.setBackground(Color.RED);
-					txtResults.setText("Could not perform queries");
-				}
-			}
-		});
-
-		add(rbtnPanel);
-		add(panelQueryImpl);
-		
-		txtResults = new JTextArea();
-		
-		add(btnQuery);
-		add(txtResults);
-		
+		add(rbtnPanel, BorderLayout.PAGE_START);
+		add(panelQueryImpl, BorderLayout.CENTER);		
 	}
 
-	private void refreshTasks() {
-		cmbTasks.removeAllItems();
+	public void refreshTasks() {
+		this.tasks.clear();
 		
-		cmbTasks.addItem("top_level");
+		this.tasks.add("top_level");
 
 		if(engine != null && engine.isSuccess()) {
 			ModelResource cttModel = engine.getCTTModel();
@@ -147,32 +108,31 @@ public class QueryPanel extends Panel implements ActionListener{
 						continue;
 					}
 					
-					cmbTasks.addItem(task.getId());
+					this.tasks.add(task.getId());
 				}
 			} catch (EolModelElementTypeNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
+		
+		reachabilityQueryPanel.SetTasks(this.tasks);
+		livenessQueryPanel.SetTasks(this.tasks);
+		safetyQueryPanel.SetTasks(this.tasks);
 	}
 
 	public QueryType getCurrentSelectedQueryType() {
 		if(rbtnReachQuery.isSelected()) return QueryType.REACHABILITY;
-		if(rbtnOtherQuery.isSelected()) return QueryType.OTHER;
+		if(rbtnLivenessQuery.isSelected()) return QueryType.LIVENESS;
+		if(rbtnSafetyQuery.isSelected()) return QueryType.OTHER;
 
 		return QueryType.NONE;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		switch(e.getActionCommand()) {
-		case "reach":
-			refreshTasks();
-			break;
-		case "other": 
-			break;
-		}
+		CardLayout cl = (CardLayout)(panelQueryImpl.getLayout());
+		
+		cl.show(panelQueryImpl, e.getActionCommand());
 	}
 }
