@@ -1,5 +1,7 @@
 package tasktop;
 
+import java.util.Date;
+
 import transformer.CTT2UPPAAL;
 import transformer.CTTXML2CTT;
 import transformer.UPPAAL2XML;
@@ -48,8 +50,8 @@ public class TransformationEngine {
 		}
 			
 		
-		System.out.println("Input: " + inputFile);
-		System.out.println("Output: " + outputFile);
+//		System.out.println("Input: " + inputFile);
+//		System.out.println("Output: " + outputFile);
 
 		// Start conversion
 		
@@ -67,10 +69,13 @@ public class TransformationEngine {
 			if (success)
 				success = u2x.execute(uppaal, uppaalxml);
 
-			System.out.println(success ? "Successfully converted models" : "Failed to convert models");
+//			System.out.println(success ? "Successfully converted models" : "Failed to convert models");
+			if(!success) 
+				err("Failed to convert models");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			log(e.getMessage());
 		}
 	
 		isSuccess = success;
@@ -81,8 +86,11 @@ public class TransformationEngine {
 	private boolean initialize() {
 		isInitialized = false;
 		
+		this.log = "";
+		
 		if(inputFile.isBlank()) {
-			System.err.println("Cannot initialize transformation engine: Inputfile is not set.");
+//			System.err.println("Cannot initialize transformation engine: Inputfile is not set.");
+			err("Cannot initialize transformation engine: Inputfile is not set.");
 			return false;
 		}
 		
@@ -102,12 +110,27 @@ public class TransformationEngine {
 			uppaal 		= null;
 			uppaalxml 	= null;
 			
-			System.err.println("Cannot initialize transformation engine: Inputfile is not valid.");
+			//System.err.println("Cannot initialize transformation engine: Inputfile is not valid.");
+			err("Cannot initialize transformation engine: Inputfile is not valid.");
 			return false;
 		}
 		
 		isInitialized = true;
 		return true;
+	}
+	
+	private String log = "";
+	
+	private void log(String message) {
+		this.log += "INFO: " + message + "\n";
+	}
+	
+	private void err(String message) {
+		this.log += "ERROR: " + message + "\n";
+	}
+	
+	public String getLog() {
+		return this.log;
 	}
 	
 }

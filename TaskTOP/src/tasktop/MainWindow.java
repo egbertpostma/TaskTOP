@@ -16,6 +16,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -129,6 +130,8 @@ public class MainWindow extends JFrame {
 					btnTransform.setBackground(Color.RED);
 					
 					qp.setEnabled(false);
+					
+					JOptionPane.showMessageDialog(null, t.getLog(), "Error!", JOptionPane.ERROR_MESSAGE);
 				}
 				
 

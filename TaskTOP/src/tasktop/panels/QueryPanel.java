@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
@@ -79,6 +80,7 @@ public class QueryPanel extends JPanel implements ActionListener {
 		livenessQueryPanel = new LivenessQueryPanel(this.engine);
 		safetyQueryPanel = new SafetyQueryPanel(engine);
 		
+		panelQueryImpl.add(new JLabel("Please select a query method above...", JLabel.CENTER), "");
 		panelQueryImpl.add(reachabilityQueryPanel, rbtnReachQuery.getActionCommand());
 		panelQueryImpl.add(livenessQueryPanel, rbtnLivenessQuery.getActionCommand());
 		panelQueryImpl.add(safetyQueryPanel, rbtnSafetyQuery.getActionCommand());

@@ -212,7 +212,7 @@ public class QueryEngine {
 				DiagnosticTraceScopeProviderSingleton.getScopeProvider().setNTA(nta);
 
 				Resource resource = resset.getResource(
-						URI.createFileURI("C:/Users/Egbert/Documents/test_ctte_uppaal.trace"), true);
+						URI.createFileURI(outputFile.getAbsolutePath()), true);
 
 	
 				assert !resource.getContents().isEmpty()
