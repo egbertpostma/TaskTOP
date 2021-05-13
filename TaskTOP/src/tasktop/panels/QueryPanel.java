@@ -38,6 +38,7 @@ public class QueryPanel extends JPanel implements ActionListener {
 	private JRadioButton rbtnReachQuery;
 	private JRadioButton rbtnLivenessQuery;
 	private JRadioButton rbtnSafetyQuery;
+	private JRadioButton rbtnSafetyQuery2;
 	private Panel panelQueryImpl;
 	
 	private Collection<String> tasks = new ArrayList<String>();
@@ -45,6 +46,7 @@ public class QueryPanel extends JPanel implements ActionListener {
 	private LivenessQueryPanel livenessQueryPanel;
 	private ReachabilityQueryPanel reachabilityQueryPanel;
 	private SafetyQueryPanel safetyQueryPanel;
+	private SafetyQueryPanel2 safetyQueryPanel2;
 
 	public QueryPanel(TransformationEngine engine) {
 		super(new BorderLayout());
@@ -69,21 +71,29 @@ public class QueryPanel extends JPanel implements ActionListener {
 		rbtnSafetyQuery.setActionCommand("safety");
 		rbtnSafetyQuery.addActionListener(this);
 		buttonGroup.add(rbtnSafetyQuery);
+		
+		rbtnSafetyQuery2 = new JRadioButton("Safety*");
+		rbtnSafetyQuery2.setActionCommand("safety2");
+		rbtnSafetyQuery2.addActionListener(this);
+		buttonGroup.add(rbtnSafetyQuery2);
 
 		rbtnPanel.add(rbtnReachQuery, 0);
 		rbtnPanel.add(rbtnLivenessQuery, 1);
 		rbtnPanel.add(rbtnSafetyQuery, 2);
+		rbtnPanel.add(rbtnSafetyQuery2, 3);
 
 		panelQueryImpl = new Panel(new CardLayout());
 
 		reachabilityQueryPanel = new ReachabilityQueryPanel(this.engine);
 		livenessQueryPanel = new LivenessQueryPanel(this.engine);
 		safetyQueryPanel = new SafetyQueryPanel(engine);
+		safetyQueryPanel2 = new SafetyQueryPanel2(engine);
 		
 		panelQueryImpl.add(new JLabel("Please select a query method above...", JLabel.CENTER), "");
 		panelQueryImpl.add(reachabilityQueryPanel, rbtnReachQuery.getActionCommand());
 		panelQueryImpl.add(livenessQueryPanel, rbtnLivenessQuery.getActionCommand());
 		panelQueryImpl.add(safetyQueryPanel, rbtnSafetyQuery.getActionCommand());
+		panelQueryImpl.add(safetyQueryPanel2, rbtnSafetyQuery2.getActionCommand());
 		
 
 		add(rbtnPanel, BorderLayout.PAGE_START);
@@ -121,6 +131,7 @@ public class QueryPanel extends JPanel implements ActionListener {
 		reachabilityQueryPanel.SetTasks(this.tasks);
 		livenessQueryPanel.SetTasks(this.tasks);
 		safetyQueryPanel.SetTasks(this.tasks);
+		safetyQueryPanel2.SetTasks(this.tasks);
 	}
 
 	public QueryType getCurrentSelectedQueryType() {
