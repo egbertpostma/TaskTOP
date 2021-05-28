@@ -87,7 +87,6 @@ operation createApplicationLeafTaskTemplate() : Uppaal!Template {
                                     
                                         
     template.createEdge(loc_running, loc_done_s1)
-                                    .addUpdate(cl_elapsedTime.simpleAssignment(0))
                                     .setGuard(createDisjunction(var_min_time.simpleComparison(-1, Uppaal!CompareOperator#EQUAL), cl_elapsedTime.simpleComparison(var_min_time, Uppaal!CompareOperator#GREATER_OR_EQUAL)));
     
     template.createEdge(loc_done_s1, loc_done)

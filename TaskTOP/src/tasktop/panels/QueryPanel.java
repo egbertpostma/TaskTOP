@@ -40,7 +40,10 @@ public class QueryPanel extends JPanel implements ActionListener {
 	private JRadioButton rbtnSafetyQuery;
 	private JRadioButton rbtnSafetyQuery2;
 	private JRadioButton rbtnSafetyQuery3;
-		private Panel panelQueryImpl;
+	private JRadioButton rbtnSafetyTimeQuery;
+	
+	
+	private Panel panelQueryImpl;
 	
 	private Collection<String> tasks = new ArrayList<String>();
 	
@@ -49,6 +52,7 @@ public class QueryPanel extends JPanel implements ActionListener {
 	private SafetyQueryPanel safetyQueryPanel;
 	private SafetyQueryPanel2 safetyQueryPanel2;
 	private SafetyQueryPanel3 safetyQueryPanel3;
+	private SafetyQueryPanelTime safetyTimeQueryPanel;
 
 	public QueryPanel(TransformationEngine engine) {
 		super(new BorderLayout());
@@ -83,12 +87,18 @@ public class QueryPanel extends JPanel implements ActionListener {
 		rbtnSafetyQuery3.setActionCommand("safety3");
 		rbtnSafetyQuery3.addActionListener(this);
 		buttonGroup.add(rbtnSafetyQuery3);
+		
+		rbtnSafetyTimeQuery = new JRadioButton("Time");
+		rbtnSafetyTimeQuery.setActionCommand("time");
+		rbtnSafetyTimeQuery.addActionListener(this);
+		buttonGroup.add(rbtnSafetyTimeQuery);
 
 		rbtnPanel.add(rbtnReachQuery, 0);
 		rbtnPanel.add(rbtnLivenessQuery, 1);
 		rbtnPanel.add(rbtnSafetyQuery, 2);
 		rbtnPanel.add(rbtnSafetyQuery2, 3);
 		rbtnPanel.add(rbtnSafetyQuery3, 4);
+		rbtnPanel.add(rbtnSafetyTimeQuery, 5);
 		
 
 		panelQueryImpl = new Panel(new CardLayout());
@@ -98,6 +108,7 @@ public class QueryPanel extends JPanel implements ActionListener {
 		safetyQueryPanel = new SafetyQueryPanel(engine);
 		safetyQueryPanel2 = new SafetyQueryPanel2(engine);
 		safetyQueryPanel3 = new SafetyQueryPanel3(engine);
+		safetyTimeQueryPanel = new SafetyQueryPanelTime(engine);
 		
 		panelQueryImpl.add(new JLabel("Please select a query method above...", JLabel.CENTER), "");
 		panelQueryImpl.add(reachabilityQueryPanel, rbtnReachQuery.getActionCommand());
@@ -105,6 +116,7 @@ public class QueryPanel extends JPanel implements ActionListener {
 		panelQueryImpl.add(safetyQueryPanel, rbtnSafetyQuery.getActionCommand());
 		panelQueryImpl.add(safetyQueryPanel2, rbtnSafetyQuery2.getActionCommand());
 		panelQueryImpl.add(safetyQueryPanel3, rbtnSafetyQuery3.getActionCommand());
+		panelQueryImpl.add(safetyTimeQueryPanel, rbtnSafetyTimeQuery.getActionCommand());
 		
 
 		add(rbtnPanel, BorderLayout.PAGE_START);
@@ -144,6 +156,7 @@ public class QueryPanel extends JPanel implements ActionListener {
 		safetyQueryPanel.SetTasks(this.tasks);
 		safetyQueryPanel2.SetTasks(this.tasks);
 		safetyQueryPanel3.SetTasks(this.tasks);
+		safetyTimeQueryPanel.SetTasks(this.tasks);
 	}
 
 	public QueryType getCurrentSelectedQueryType() {
