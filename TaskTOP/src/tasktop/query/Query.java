@@ -39,6 +39,10 @@ public abstract class Query {
 			return Expr.b(new Expr(left + " || " + right));
 		}
 		
+		public static Expr imply(Expr left, Expr right) {
+			return Expr.b(new Expr(left + " imply " + right));
+		}
+		
 		public static Expr not(Expr expr) {
 			return new Expr("!" + Expr.b(expr));
 		}

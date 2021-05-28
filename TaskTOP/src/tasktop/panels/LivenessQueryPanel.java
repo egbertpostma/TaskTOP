@@ -38,14 +38,14 @@ public class LivenessQueryPanel extends JPanel  {
 		JPanel ifQuestionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		JPanel thenQuestionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
-		ifStatementPanel = new StatementPanel("is");
-		thenStatementPanel = new StatementPanel("is");
+		ifStatementPanel = new StatementPanel("becomes");
+		thenStatementPanel = new StatementPanel("becomes");
 		
 		ifQuestionPanel.add(new JLabel("If"));
 		ifQuestionPanel.add(ifStatementPanel);
 		ifQuestionPanel.add(new JLabel(","));
 		
-		ifQuestionPanel.add(new JLabel("then"));
+		ifQuestionPanel.add(new JLabel("then eventually"));
 		ifQuestionPanel.add(thenStatementPanel);
 		ifQuestionPanel.add(new JLabel("."));
 
